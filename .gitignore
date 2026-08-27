@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: CC-BY-SA-4.0
+# Binaries are attached to Releases, never committed — they cannot be
+# removed from git history afterwards.
+*.zip
+*.rar
+*.7z
+*.bin
+*.hex
+*.elf
+*.dfu
+*.exe
+*.msi
+
+# Raw fabrication outputs (generated from the EDA source)
+*.gbr
+*.drl
+
+# KiCad working files
+*-backups/
+*.kicad_prl
+fp-info-cache
+*.lck
+*.bak
+
+# OS noise
+.DS_Store
+Thumbs.db
