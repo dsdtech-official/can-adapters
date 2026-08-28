@@ -71,8 +71,8 @@ connected to the CAN terminal and transmit a frame. Only the TX light responds �
 second node there is nothing to receive, and nothing to acknowledge the frame either, so
 the controller keeps retrying and the TX light keeps winking.
 
-In the [schematic](../SH-C30A/hardware/) the three are `LED1` (red, power), `LED2` (green,
-TX) and `LED3` (green, RX) on both boards.
+On both boards the schematic calls them `LED1` (red, power), `LED2` (green, TX) and
+`LED3` (green, RX) — [SH-C30A](../SH-C30A/hardware/) · [SH-C31A](../SH-C31A/hardware/).
 
 ## Identify
 
