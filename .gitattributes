@@ -10,3 +10,8 @@
 # endings, and any end-of-line conversion would corrupt the board file.
 *.SchDoc -text
 *.PcbDoc -text
+
+# The JLC EDA project is a zip and the schematic PDF is binary. Neither is
+# text, but say so rather than relying on autodetection.
+*.epro2 -text
+*.pdf -text
