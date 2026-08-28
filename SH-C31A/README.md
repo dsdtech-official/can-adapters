@@ -29,7 +29,9 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 1. **[Manual](manual/)** — wiring, LEDs, first connection
 2. **Check the 120 Ω terminator.** Switch it **off** when the bus already has two, which a
    vehicle bus does → [`docs/termination.md`](../docs/termination.md)
-3. **[Examples](examples/)** — read the bus, send a frame, send an FD frame
+3. **The green LEDs stay dark until software opens the channel.** That is normal →
+   [`docs/leds.md`](../docs/leds.md)
+4. **[Examples](examples/)** — read the bus, send a frame, send an FD frame
 
 ## In this folder
 
