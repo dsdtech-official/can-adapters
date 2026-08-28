@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
 # SPDX-License-Identifier: BSD-3-Clause
 """Read and send CAN frames on a DSD TECH SH-C30A running the slcan firmware.
 

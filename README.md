@@ -1,3 +1,4 @@
+<!-- SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH) -->
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # DSD TECH CAN adapters
 
@@ -43,7 +44,11 @@ carries an `SPDX-License-Identifier`, and the full texts are in [`LICENSES/`](LI
 | Hardware design files | CERN-OHL-S-2.0 |
 | Documentation, manuals, datasheets | CC-BY-SA-4.0 |
 | Example code | BSD-3-Clause |
-| Third-party firmware we redistribute | its own licence, retained verbatim |
+| Firmware images we publish | MIT (candleLight_fw, © 2016 Hubert Denkmair) |
+
+Our boards descend from the **CANable** family and share their microcontroller and basic
+architecture with **candleLight** by Hubert Denkmair (**CERN-OHL-1.2**). Full attribution,
+the licence chain and what we changed: **[`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md)**.
 
 The **DSD TECH** name and logo are trademarks and are not licensed here. FCC / CE / RoHS
 certifications apply only to units we manufacture and sell.

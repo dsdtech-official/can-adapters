@@ -1,0 +1,12 @@
+# SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
+# SPDX-License-Identifier: CC-BY-SA-4.0
+
+# Text in this repository is LF, everywhere, on every machine.
+* text=auto eol=lf
+
+# EDA source files are byte-exact. Later rules win, so these override the line
+# above. The Protel ASCII PCB format uses CRLF for most records but also carries
+# lone CR characters as separators inside them -- those are structure, not line
+# endings, and any end-of-line conversion would corrupt the board file.
+*.SchDoc -text
+*.PcbDoc -text

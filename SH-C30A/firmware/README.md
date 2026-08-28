@@ -1,3 +1,4 @@
+<!-- SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH) -->
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # SH-C30A — Firmware
 
@@ -31,6 +32,21 @@ image to a version you can quote in a support request.
 
 > ⚠️ **Reflashing is not required for normal use.** The board works as shipped. Only
 > reflash if you specifically need the other personality.
+
+## Licence and attribution
+
+The firmware images we publish are built from **candleLight_fw** by **Hubert Denkmair**,
+released under the **MIT** licence.
+
+> Copyright (c) 2016 Hubert Denkmair — [`LICENSES/MIT.txt`](../../LICENSES/MIT.txt)
+
+MIT requires the copyright and permission notice to be included **in binary distributions
+too**, so [`THIRD-PARTY-NOTICES.md`](../../THIRD-PARTY-NOTICES.md) ships with every firmware
+release. It also records two components inside candleLight_fw that carry their own terms —
+the **STM32 HAL** (BSD-style) and the **STM32 USB library**
+(**ST Ultimate Liberty License SLA0044**, not an OSI-approved licence).
+
+**If you mirror our firmware images anywhere, carry that file with them.**
 
 ## Third-party firmware
 

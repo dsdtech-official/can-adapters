@@ -1,3 +1,4 @@
+<!-- SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH) -->
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # SH-C30A
 
@@ -39,6 +40,11 @@ Firmware images and fabrication bundles are attached to
 ## Licence
 
 Hardware design files: **CERN-OHL-S-2.0** · Documentation: **CC-BY-SA-4.0** ·
-Example code: **BSD-3-Clause**. See [LICENSES/](../LICENSES/).
+Example code: **BSD-3-Clause** · Firmware images: **MIT**. See [LICENSES/](../LICENSES/).
+
+This board descends from the **CANable** family and shares its microcontroller and basic
+architecture with **candleLight** by Hubert Denkmair (**CERN-OHL-1.2**). Attribution, the
+licence chain and what we changed:
+[`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 
 **No warranty.** Provided AS IS.
