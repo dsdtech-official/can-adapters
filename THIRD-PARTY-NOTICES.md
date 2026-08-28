@@ -93,18 +93,7 @@ we have not independently audited which of them end up in a given build.
 
 ---
 
-## 3. Independent third-party firmware we do **not** ship
-
-**CANable 2.5** by **ElmüSoft** (Elmue) is a separate, actively maintained firmware for
-CANable-derived boards, published under BSD-3-Clause.
-Upstream: <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight>
-
-It is **not** what we install at the factory, and no part of it is redistributed here.
-It is listed only so that customers who flash it know where it comes from.
-
----
-
-## 4. Trademarks
+## 3. Trademarks
 
 **DSD TECH** is our trademark and is not licensed by this repository. **CANable**,
 **candleLight**, **STM32** and other names are the marks of their respective owners and are
