@@ -48,13 +48,11 @@ s.write(b'V\r')
 print(s.read(16))
 ```
 
-> **Older firmware may not reply at all.** The upstream CANable firmware has the
-> CR/BEL acknowledgement commented out, so a version query can simply time out.
-> No reply is itself a signal: it means the adapter is **not** running CANable 2.5.
+> **Some builds do not reply at all.** The upstream CANable firmware has the CR/BEL
+> acknowledgement commented out, so a version query can simply time out. A silent adapter
+> is not a broken one.
 
 ## Changing firmware
 
 Both personalities are flashed over USB DFU. See
 your model's firmware folder — [SH-C30A](../SH-C30A/firmware/).
-
-Upstream manual (ElmüSoft): <https://netcult.ch/elmue/CANable%20Firmware%20Update/>
