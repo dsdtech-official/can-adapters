@@ -59,3 +59,6 @@ certifications apply only to units we manufacture and sell.
 
 Questions about a product go in [Issues](../../issues).
 For sales, warranty and returns: <https://www.deshide.com>
+
+Found a security issue? Report it privately rather than in an issue — see
+[`SECURITY.md`](SECURITY.md).

@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
+# SPDX-License-Identifier: CC-BY-SA-4.0
+blank_issues_enabled: true
+contact_links:
+  - name: Termination, LEDs, identifying your firmware
+    url: https://github.com/dsdtech-official/can-adapters/tree/main/docs
+    about: The documentation that answers most support questions. Worth two minutes first.
+
+  - name: Support, drivers and software downloads
+    url: https://www.deshide.com/SUPPORT.html
+    about: Product support pages on our own site.
+
+  - name: Sales, warranty, returns
+    url: https://www.deshide.com
+    about: Order and warranty questions are handled through the shop, not GitHub.
+
+  - name: Reporting a security issue
+    url: https://github.com/dsdtech-official/can-adapters/blob/main/SECURITY.md
+    about: Please report vulnerabilities privately rather than in a public issue.
