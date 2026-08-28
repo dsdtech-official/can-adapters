@@ -59,20 +59,37 @@ last updated 2022-07-10, board revision V1.21 dated 2023-05-06.
 
 ---
 
-## 2. Firmware — candleLight_fw and what is inside it
+## 2. Firmware — where each build comes from, and what is inside it
 
-The firmware images we attach to [Releases](../../releases) for the **SH-C30x** family —
-**SH-C30A, SH-C30G and SH-C30L**, which share one firmware build — are built from
-**candleLight_fw**.
+Our firmware images are attached to [Releases](../../releases). Two boards, two different
+upstreams — both MIT, both carrying the same two sub-components underneath.
 
-> Other models are **not** covered by this section. Their firmware provenance is recorded
-> here as their images are published.
+### SH-C30x — SH-C30A, SH-C30G and SH-C30L, which share one build
 
 | | |
 |---|---|
 | Project | **candleLight_fw** — <https://github.com/candle-usb/candleLight_fw> |
 | Copyright | **Copyright (c) 2016 Hubert Denkmair** |
 | Licence | **MIT** — [`LICENSES/MIT.txt`](LICENSES/MIT.txt) |
+
+### SH-C31A
+
+The CAN FD fork of candleLight for STM32G4 boards. This is what gives the SH-C31A CAN FD
+out of the box.
+
+| | |
+|---|---|
+| Project | **candleLight_fw_canable_v2_fd** — <https://github.com/tymmothy/candleLight_fw_canable_v2_fd> |
+| Author of the fork | **Tymm Zerr** (`tymmothy`) |
+| Copyright | **Copyright (c) 2016 Hubert Denkmair**<br>**Copyright (c) 2022 Ryan Edwards** — changes for STM32G4 and CAN FD |
+| Licence | **MIT** — [`LICENSES/MIT.txt`](LICENSES/MIT.txt) |
+
+> ⚠️ **That fork describes itself as unmaintained** — its repository summary reads
+> *"gs_usb compatible firmware for canable v2 w/FD (not maintained)"*. We say so because
+> you may want to know before building on it. It is still what we ship.
+
+> Models not named above are **not** covered by this section. Their firmware provenance is
+> recorded here as their images are published.
 
 MIT requires the copyright notice and permission notice to be included **in binary
 distributions too**, which is why this file ships with every firmware release.
