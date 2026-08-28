@@ -39,13 +39,18 @@ cansend can0 123#DEADBEEF
 
 ## Listen without transmitting
 
-Useful on a live vehicle bus, where an unexpected transmission is not welcome. The adapter
-never sends anything, not even acknowledgements:
+`listen-only` asks the CAN controller for silent mode: it receives, and it does not drive
+the bus — no frames of its own, and no acknowledgements.
 
 ```bash
 sudo ip link set can0 down
 sudo ip link set can0 up type can bitrate 500000 listen-only on
 ```
+
+> ⚠️ **Prove it on a bench before you trust it on a vehicle.** Silent mode is a property of
+> the controller and this is the standard way to ask for it, but we have not put an
+> analyser on this adapter to confirm it stays quiet. If one stray acknowledgement would
+> matter on the bus you are about to join, verify on a bus you own first.
 
 ## Take the bus down
 

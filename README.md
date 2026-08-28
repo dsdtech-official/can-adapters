@@ -11,7 +11,6 @@ example code.
 | Model | Bus | Isolation | Host connector | CAN connector |
 |---|---|---|---|---|
 | [**SH-C30A**](SH-C30A/) | CAN 2.0A / 2.0B | — | USB-A plug | 3.81 mm terminal |
-| [**SH-C31A**](SH-C31A/) | CAN FD | — | USB-A plug | 3.81 mm terminal |
 
 _More models are being added._
 
