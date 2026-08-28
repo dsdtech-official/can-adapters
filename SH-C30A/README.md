@@ -6,7 +6,7 @@ USB to **CAN 2.0** adapter. Non-isolated. Part of the **CANable** family of adap
 lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 
 > **Buy:** <https://www.amazon.com/dp/B0BQ5G3KLR>
-> Also stocked on Amazon in the **UK, Europe, Japan and Australia** — search the
+> Also stocked on Amazon in the **UK, Europe, Japan, Australia and the Middle East** — search the
 > model number on your local site. Product page:
 > <https://www.deshide.com/product-details_SH-C30A.html>
 
