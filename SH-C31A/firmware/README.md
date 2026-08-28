@@ -4,7 +4,7 @@
 
 ## What this board ships with
 
-**Our own gs_usb build, `v1.4`** — the image on [Releases](../../../../releases).
+**Our own gs_usb build, `v1.4`** — see **[Download](#download)** below.
 
 The adapter presents itself as a raw USB device: the kernel `gs_usb` driver on Linux,
 WinUSB on Windows. On Linux that means a standard SocketCAN interface with nothing to
@@ -82,13 +82,31 @@ Look at the name the adapter reports over USB: Device Manager on Windows, under
 | **v1.4** | reports itself as **`SH-C31x`**, made by **`DSD TECH`** |
 | Anything else | an earlier build |
 
-## Changing firmware
+## Download
 
-Over USB DFU, to the STM32 system bootloader (`0483:DF11`). A USB cable is all you need.
+**[SH-C31A firmware v1.4](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.4)** — the current build, and what the boards ship with.
 
-**Firmware images are attached to [Releases](../../../../releases)**, not stored in this
-folder — binaries cannot be removed from git history afterwards, and a release ties an
-image to a version you can quote in a support request.
+| File | |
+|---|---|
+| [`SH-C31A_canable2_v1.4.dfu`](https://github.com/dsdtech-official/can-adapters/releases/download/SH-C31A/fw-v1.4/SH-C31A_canable2_v1.4.dfu) | **Start here.** DfuSe format, for `dfu-util` or ST tools |
+| [`SH-C31A_canable2_v1.4.bin`](https://github.com/dsdtech-official/can-adapters/releases/download/SH-C31A/fw-v1.4/SH-C31A_canable2_v1.4.bin) | Raw image, flashed at `0x08000000` |
+| [`SH-C31A_canable2_v1.4.hex`](https://github.com/dsdtech-official/can-adapters/releases/download/SH-C31A/fw-v1.4/SH-C31A_canable2_v1.4.hex) | Intel HEX |
+| [`SHA256SUMS.txt`](https://github.com/dsdtech-official/can-adapters/releases/download/SH-C31A/fw-v1.4/SHA256SUMS.txt) | Checksums for the three above |
+| [`THIRD-PARTY-NOTICES.md`](https://github.com/dsdtech-official/can-adapters/releases/download/SH-C31A/fw-v1.4/THIRD-PARTY-NOTICES.md) | The licence notice. **Carry it with the images if you mirror them** |
+
+Check what you downloaded before flashing it:
+
+```bash
+sha256sum -c SHA256SUMS.txt
+```
+
+Images are not kept in this folder. Binaries cannot be removed from git history
+afterwards, and a release ties an image to a version you can quote in a support request.
+
+## Flashing
+
+Over USB DFU, to the STM32 system bootloader (`0483:DF11`). A USB cable is all you
+need.
 
 > Reflashing is not required for normal use.
 
