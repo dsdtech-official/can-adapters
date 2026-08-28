@@ -9,14 +9,17 @@ talks to the adapter. If you are not sure which one you have →
 | Example | Firmware | Platform |
 |---|---|---|
 | [`linux-socketcan.md`](linux-socketcan.md) | candlelight *(as shipped)* | Linux |
-| [`python-slcan.py`](python-slcan.py) | slcan | Windows, Linux, macOS |
+| [`python-gsusb.py`](python-gsusb.py) | candlelight *(as shipped)* | Windows *(macOS untested)* |
 
-## gs_usb from Python
+## Which one do I want
 
-For candlelight adapters from Python on Windows, use `python-can`'s `gs_usb` interface.
-We are not reproducing its arguments here because they have changed between versions —
-take them from the current documentation:
+**On Linux, neither of these needs anything installed.** The kernel claims the adapter and
+gives you a SocketCAN interface — [`linux-socketcan.md`](linux-socketcan.md) is the whole
+story, and Python there means `python-can` with `interface="socketcan"`.
+
+**On Windows** there is no kernel CAN stack, so Python talks to the adapter through libusb.
+That is what [`python-gsusb.py`](python-gsusb.py) does, and its header explains the one
+install step Windows needs.
+
+Reference for the interface's own arguments:
 <https://python-can.readthedocs.io/en/stable/interfaces/gs_usb.html>
-
-On Linux you do not need it: the kernel claims the device and you get SocketCAN, which is
-what [`linux-socketcan.md`](linux-socketcan.md) covers.

@@ -13,8 +13,8 @@ ip link show | grep can
 ```
 
 A `can0` interface means candlelight and the kernel driver are working. If you get a
-`/dev/ttyACM<n>` instead, the adapter is running slcan — see
-[`python-slcan.py`](python-slcan.py).
+`/dev/ttyACM<n>` instead, the adapter is running a serial-port firmware rather than the one
+it ships with → [`docs/identify-firmware.md`](../../docs/identify-firmware.md)
 
 ## Bring the bus up
 
