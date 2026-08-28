@@ -47,11 +47,3 @@ the **STM32 HAL** (BSD-style) and the **STM32 USB library**
 (**ST Ultimate Liberty License SLA0044**, not an OSI-approved licence).
 
 **If you mirror our firmware images anywhere, carry that file with them.**
-
-## Third-party firmware
-
-**CANable 2.5** by ElmüSoft is an independent, actively maintained firmware that runs on
-CANable-derived boards and is published under BSD-3-Clause. It is **not** what we install
-at the factory.
-
-Upstream manual: <https://netcult.ch/elmue/CANable%20Firmware%20Update/>
