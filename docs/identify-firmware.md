@@ -55,6 +55,6 @@ print(s.read(16))
 ## Changing firmware
 
 Both personalities are flashed over USB DFU. See
-your model's firmware folder — [SH-C30A](../SH-C30A/firmware/) · [SH-C31A](../SH-C31A/firmware/).
+your model's firmware folder — [SH-C30A](../SH-C30A/firmware/).
 
 Upstream manual (ElmüSoft): <https://netcult.ch/elmue/CANable%20Firmware%20Update/>

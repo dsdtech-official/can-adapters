@@ -14,7 +14,7 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 |---|---|
 | MCU | STM32F072C8T6 — Cortex-M0, 64 KB flash, bxCAN |
 | Transceiver | NXP TJA1040T |
-| CAN FD | **Not supported** — the silicon has no CAN FD. See [SH-C31A](../SH-C31A/) |
+| CAN FD | **Not supported** — the silicon has no CAN FD |
 | Isolation | **None** |
 | Clock | 24 MHz crystal on board |
 | USB | USB 2.0 Full Speed, USB-A plug |
