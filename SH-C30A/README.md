@@ -26,7 +26,9 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 2. **Check the 120 Ω terminator.** Switch it **off** when the bus already has two, which a
    vehicle bus does → [`docs/termination.md`](../docs/termination.md)
 3. **Find out which firmware you have** → [`docs/identify-firmware.md`](../docs/identify-firmware.md)
-4. **[Examples](examples/)** — read the bus, send a frame
+4. **The green LEDs stay dark until software opens the channel.** That is normal →
+   [`docs/leds.md`](../docs/leds.md)
+5. **[Examples](examples/)** — read the bus, send a frame
 
 ## In this folder
 

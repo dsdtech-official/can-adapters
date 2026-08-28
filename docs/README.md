@@ -9,6 +9,7 @@ own folder.
 |---|---|
 | `identify-firmware.md` | Which firmware is on my adapter, and how do I change it? |
 | `termination.md` | When must the 120 Ω terminator be switched off? *(the #1 support question)* |
+| `leds.md` | What the three lights mean, and why the green ones are dark |
 
-More is being written — LED meanings, measured bit rate and sample point tables, per-OS
-setup guides and troubleshooting.
+More is being written — measured bit rate and sample point tables, per-OS setup guides and
+troubleshooting.
