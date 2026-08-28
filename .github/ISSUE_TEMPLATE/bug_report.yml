@@ -1,0 +1,108 @@
+# SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
+# SPDX-License-Identifier: CC-BY-SA-4.0
+name: Bug report
+description: Something is not working with a DSD TECH CAN adapter
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Three things answer most reports before they are written:
+
+        - [**Termination**](https://github.com/dsdtech-official/can-adapters/blob/main/docs/termination.md)
+          — the 120 Ω switch must be **off** on a bus that is already terminated, such as a vehicle.
+        - [**LEDs**](https://github.com/dsdtech-official/can-adapters/blob/main/docs/leds.md)
+          — the two green lights stay dark until software opens the channel. That is normal.
+        - [**Which firmware you have**](https://github.com/dsdtech-official/can-adapters/blob/main/docs/identify-firmware.md)
+          — it decides which software can talk to the adapter at all.
+
+  - type: dropdown
+    id: model
+    attributes:
+      label: Model
+      description: The part number is printed on the board.
+      options:
+        - SH-C30A
+        - SH-C30G
+        - SH-C30L
+        - SH-C31A
+        - SH-C31G
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: What kind of problem is it?
+      options:
+        - The host does not see the device at all
+        - The host sees it, but my software cannot open it
+        - No frames received
+        - Frames sent are not arriving / not acknowledged
+        - CAN FD does not work
+        - Frames are lost under load
+        - It appears in bootloader / DFU mode
+        - The LEDs do not behave as documented
+        - Documentation is wrong, unclear or missing
+        - Hardware appears faulty
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware
+      description: >
+        The name the adapter reports over USB — Device Manager on Windows, `lsusb` on
+        Linux. Our current builds report `SH-C30x` or `SH-C31x`, made by `DSD TECH`.
+      placeholder: "e.g. SH-C31x / candleLight USB to CAN adapter / unknown"
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows 11
+        - Windows 10
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: software
+    attributes:
+      label: Software you were using
+      placeholder: "e.g. python-can 4.x, can-utils, SavvyCAN, our example script"
+
+  - type: input
+    id: bitrate
+    attributes:
+      label: Bit rate
+      description: Nominal rate, and the data rate too if you are using CAN FD.
+      placeholder: "e.g. 500 kbit/s, or 500 k nominal + 2 M data"
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: >
+        What you did, what you expected, what you got instead. Paste any error text
+        verbatim rather than describing it.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Already checked
+      description: Not required — but each one you can tick saves a round trip.
+      options:
+        - label: Measuring CAN_H to CAN_L with everything powered off reads about 60 Ω
+        - label: Every node on the bus is set to the same bit rate
+        - label: CAN_H, CAN_L and GND are all three connected, and H and L are not swapped
+        - label: There is at least one other node on the bus
+        - label: I tried a different USB port and cable
