@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # SH-C31A
 
-USB to **CAN FD** adapter. Non-isolated. Derived from the CANable 2.0 open-hardware design.
+USB to **CAN FD** adapter. Non-isolated. Part of the **CANable** family of adapters.
 
 > **Isolated version:** [SH-C31G](https://www.deshide.com/product-details_SH-C31G.html) ·
 > **Buy:** <https://www.deshide.com/product-details_SH-C31A.html>

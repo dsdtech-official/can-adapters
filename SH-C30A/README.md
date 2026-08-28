@@ -2,7 +2,8 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # SH-C30A
 
-USB to **CAN 2.0** adapter. Non-isolated. Derived from the CANable open-hardware design.
+USB to **CAN 2.0** adapter. Non-isolated. Part of the **CANable** family of adapters —
+lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 
 > **Buy:** <https://www.deshide.com/product-details_SH-C30A.html>
 
