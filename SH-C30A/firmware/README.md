@@ -12,10 +12,10 @@ classic bxCAN peripheral, not FDCAN. It runs CAN 2.0A and 2.0B at up to 1 Mbit/s
 
 ### Your adapter may be running an earlier build
 
-Production ships our own candlelight build, **v2.1**, which is the image on
-[Releases](#download). Adapters reach you through distribution, so a recently
-bought one can still be older stock carrying an earlier firmware. Those units are not
-faulty and keep working.
+**Units produced from September 2026 ship with v2.1**, the image on
+[Releases](#download). Anything made before that carries the stock CANable build, and so
+does older stock still moving through distribution. **Those units are not faulty and keep
+working** -- v2.1 is an upgrade, not a fix for a defect.
 
 **v2.1 runs the microcontroller from the 24 MHz crystal fitted on the board.** Every
 SH-C30A has that crystal.
@@ -45,7 +45,8 @@ host. Ten seconds to tell them apart →
 
 ## Download
 
-**[SH-C30A firmware v2.1](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C30A/fw-v2.1)** — the current build, and what the boards ship with.
+**[SH-C30A firmware v2.1](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C30A/fw-v2.1)** — the current build, and what units produced from September 2026
+ship with.
 
 | File | |
 |---|---|

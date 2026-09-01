@@ -6,6 +6,10 @@
 
 **Our own gs_usb build, `v1.4`** — see **[Download](#download)** below.
 
+**Units produced from September 2026 ship with v1.4.** Anything made before that carries an
+earlier build, and so does older stock still moving through distribution. Those units are
+not faulty and keep working.
+
 The adapter presents itself as a raw USB device: the kernel `gs_usb` driver on Linux,
 WinUSB on Windows. On Linux that means a standard SocketCAN interface with nothing to
 install.
@@ -84,7 +88,8 @@ Look at the name the adapter reports over USB: Device Manager on Windows, under
 
 ## Download
 
-**[SH-C31A firmware v1.4](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.4)** — the current build, and what the boards ship with.
+**[SH-C31A firmware v1.4](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.4)** — the current build, and what units produced from September 2026
+ship with.
 
 | File | |
 |---|---|
