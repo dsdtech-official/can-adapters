@@ -12,6 +12,7 @@ example code.
 |---|---|---|---|---|
 | [**SH-C30A**](SH-C30A/) | CAN 2.0A / 2.0B | — | USB-A plug | 3.81 mm terminal |
 | [**SH-C30G**](SH-C30G/) | CAN 2.0A / 2.0B | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
+| [**SH-C30L**](SH-C30L/) | CAN 2.0A / 2.0B | — | USB-A on a lead | 3.81 mm terminal |
 | [**SH-C31A**](SH-C31A/) | **CAN FD** | — | USB-A plug | 3.81 mm terminal |
 | [**SH-C31G**](SH-C31G/) | **CAN FD** | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
 
