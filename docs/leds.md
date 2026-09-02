@@ -48,8 +48,8 @@ bus load.
 Both greens are the same part, so colour will not separate them. Hold the board **component
 side up with the USB plug pointing left**:
 
-**SH-C30A** — the two greens sit one above the other, a little right of centre. The red one
-is off to their right, towards the screw terminal.
+**SH-C30A and SH-C30L** — the two greens sit one above the other, a little right of centre.
+The red one is off to their right, towards the screw terminal.
 
 | | |
 |---|---|
@@ -82,8 +82,8 @@ connected to the CAN terminal and transmit a frame. Only the TX light responds �
 second node there is nothing to receive, and nothing to acknowledge the frame either, so
 the controller keeps retrying and the TX light keeps winking.
 
-On **all four** boards the schematic calls them `LED1` (red, power), `LED2` (green, TX)
-and `LED3` (green, RX) — [SH-C30A](../SH-C30A/hardware/) · [SH-C30G](../SH-C30G/hardware/) · [SH-C31A](../SH-C31A/hardware/) · [SH-C31G](../SH-C31G/hardware/).
+On **every** board the schematic calls them `LED1` (red, power), `LED2` (green, TX) and
+`LED3` (green, RX) — [SH-C30A](../SH-C30A/hardware/) · [SH-C30G](../SH-C30G/hardware/) · [SH-C30L](../SH-C30L/hardware/) · [SH-C31A](../SH-C31A/hardware/) · [SH-C31G](../SH-C31G/hardware/).
 
 ## Identify
 
