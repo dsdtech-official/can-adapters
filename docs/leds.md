@@ -2,7 +2,8 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # LEDs — what the three lights mean
 
-Every adapter in this repository has three LEDs: **one red, two green**.
+Every adapter in this repository has three LEDs: **one red, two green** — and on every
+one of them the red is power, and the greens are TX and RX.
 
 | Light | Colour | Driven by | Says |
 |---|---|---|---|
@@ -63,16 +64,26 @@ is off to their right, towards the screw terminal.
 | middle green | **TX** |
 | bottom red | **power** |
 
-**The two boards are not laid out the same way.** Do not carry the habit from one to the
-other.
+**SH-C30G and SH-C31G** are the same layout as each other: the three sit in one vertical
+line near the edge furthest from the screw terminal. Hold the board with **the screw
+terminal on the right**:
+
+| | |
+|---|---|
+| top green | **RX** |
+| middle green | **TX** |
+| bottom red | **power** |
+
+**The boards are not all laid out the same way.** Do not carry the habit from one to
+another.
 
 If you would rather confirm it than count LEDs: open the channel with nothing else
 connected to the CAN terminal and transmit a frame. Only the TX light responds — with no
 second node there is nothing to receive, and nothing to acknowledge the frame either, so
 the controller keeps retrying and the TX light keeps winking.
 
-On both boards the schematic calls them `LED1` (red, power), `LED2` (green, TX) and
-`LED3` (green, RX) — [SH-C30A](../SH-C30A/hardware/) · [SH-C31A](../SH-C31A/hardware/).
+On **all four** boards the schematic calls them `LED1` (red, power), `LED2` (green, TX)
+and `LED3` (green, RX) — [SH-C30A](../SH-C30A/hardware/) · [SH-C30G](../SH-C30G/hardware/) · [SH-C31A](../SH-C31A/hardware/) · [SH-C31G](../SH-C31G/hardware/).
 
 ## Identify
 
