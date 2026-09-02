@@ -11,9 +11,12 @@ example code.
 | Model | Bus | Isolation | Host connector | CAN connector |
 |---|---|---|---|---|
 | [**SH-C30A**](SH-C30A/) | CAN 2.0A / 2.0B | — | USB-A plug | 3.81 mm terminal |
+| [**SH-C30G**](SH-C30G/) | CAN 2.0A / 2.0B | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
 | [**SH-C31A**](SH-C31A/) | **CAN FD** | — | USB-A plug | 3.81 mm terminal |
+| [**SH-C31G**](SH-C31G/) | **CAN FD** | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
 
-_More models are being added._
+The isolated models cut the CAN side loose from USB with a digital isolator and their own
+isolated supply — nothing external needed. _More models are being added._
 
 ## What is in each model folder
 
