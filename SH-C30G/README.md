@@ -11,7 +11,7 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 
 | | |
 |---|---|
-| MCU | **STM32F072C8T6** — Cortex-M0 with a classic bxCAN peripheral |
+| MCU | **STM32F072** — Cortex-M0 with a classic bxCAN peripheral. Both the **C8T6** (64 KB flash) and the **CBT6** (128 KB) are fitted in production; the firmware is the same either way |
 | Transceiver | **SIT1040T** — 1 Mbit/s |
 | **Isolation** | ✅ **Digital isolator + isolated DC-DC.** Signal *and* power are isolated — the parts, and which one we actually fit, are in [`hardware/`](hardware/) |
 | CAN FD | ❌ **Not supported, and reflashing cannot add it** — bxCAN is not FDCAN |
