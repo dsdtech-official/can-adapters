@@ -25,10 +25,18 @@ not faulty and keep working.
 **No reflashing, no second firmware, no serial port.** CAN FD runs over the same gs_usb
 interface as classic CAN.
 
-The measurements are on the [SH-C31A page](../../SH-C31A/firmware/) and apply to this board
-— it is the same microcontroller running the same image. In short: FD data rates of 1 M,
+The measurements are on the [SH-C31A page](../../SH-C31A/firmware/): FD data rates of 1 M,
 2 M, 2.5 M, 3.4 M and 5 M all verified with 64-byte payloads, and a 75-minute bidirectional
 run at 5 Mbit/s with zero frames lost and zero bus errors.
+
+**Those per-rate figures were taken on an SH-C31A, not on this board.** The SH-C31G runs the
+same image on the same microcontroller, but it uses a different transceiver and puts a digital
+isolator in the `TXD`/`RXD` path, which adds loop delay.
+
+**What we have run on the SH-C31G itself:** CAN FD, with the isolation in circuit, including
+an extended soak. What we have not repeated on it is the sweep across data rates — so take
+the 5 Mbit/s figure above as an SH-C31A measurement, not an SH-C31G one, until we publish
+that sweep here.
 
 **To check which build you have**, look at the name the adapter reports over USB — Device
 Manager on Windows, or `lsusb` on Linux. v1.4 reports itself as **`SH-C31x`**, made by
