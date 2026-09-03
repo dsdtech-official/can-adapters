@@ -14,7 +14,7 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 |---|---|
 | MCU | **STM32G431C8T6** — 170 MHz Cortex-M4F, FDCAN |
 | Transceiver | **TJA1051T/3** (NXP) |
-| **Isolation** | ✅ **ADuM3201 digital isolator + B0505S-1WR3 isolated DC-DC.** Signal *and* power are isolated |
+| **Isolation** | ✅ **Digital isolator + isolated DC-DC.** Signal *and* power are isolated — the parts, and which one we actually fit, are in [`hardware/`](hardware/) |
 | **CAN FD** | ✅ **Working out of the box** — same firmware and same interface as the SH-C31A, see [`firmware/`](firmware/) |
 | Classic CAN | CAN 2.0A and 2.0B |
 | Clock | No external crystal — the MCU runs from its internal oscillator |
