@@ -13,7 +13,7 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 |---|---|
 | MCU | **STM32F072C8T6** — Cortex-M0 with a classic bxCAN peripheral |
 | Transceiver | **SIT1040T** — 1 Mbit/s |
-| **Isolation** | ✅ **ADuM3201 digital isolator + B0505S-1WR3 isolated DC-DC.** Signal *and* power are isolated |
+| **Isolation** | ✅ **Digital isolator + isolated DC-DC.** Signal *and* power are isolated — the parts, and which one we actually fit, are in [`hardware/`](hardware/) |
 | CAN FD | ❌ **Not supported, and reflashing cannot add it** — bxCAN is not FDCAN |
 | Classic CAN | CAN 2.0A and 2.0B, up to 1 Mbit/s |
 | Clock | 24 MHz crystal on the board |

@@ -21,13 +21,31 @@ the *binary* variant; we have not tested them against these ASCII files.
 
 | Part | Job |
 |---|---|
-| **U4 — ADuM3201ARZ** | Two-channel digital isolator. `TXD`/`RXD` cross here; `VDD1`/`GND1` are the USB side, `VDD2`/`GND2` the CAN side |
+| **U4 — digital isolator** | Two-channel. `TXD`/`RXD` cross here; `VDD1`/`GND1` are the USB side, `VDD2`/`GND2` the CAN side. **The schematic specifies an ADuM3201ARZ; production boards are built with a π122M31** — see below |
 | **U5 — B0505S-1WR3** | Isolated DC-DC, 5 V in from USB, 1 W out. Its `+VO`/`0V` **are** `VDD-CAN`/`GND-CAN` |
 | **U1 / U6 — ME6209A33** | One 3.3 V regulator per side, so each domain has its own rail |
 | **U2 — TJA1051T/3** | Transceiver, powered from the isolated side |
 
 ⇒ **The CAN side has its own supply and its own ground reference**, both produced on the
 board. Nothing external is required to make the isolation work.
+
+## The isolator we actually fit
+
+The schematic specifies an **ADuM3201ARZ**. **Production boards are built with a
+π122M31** (2Pai Semi) instead, and always have been. The two are pin-compatible in SOIC-8
+and have the same one-forward, one-reverse channel arrangement, so the schematic is
+otherwise accurate — but the part number on it is not the part on the board.
+
+| | ADuM3201ARZ (on the schematic) | π122M31 (what is fitted) |
+|---|---|---|
+| Data rate | 1 Mbps | **10 Mbps** |
+| Isolation | 2500 V rms | **3000 V rms** |
+| Common-mode transient immunity | 25 kV/µs | **75 kV/µs** |
+
+**On this board the difference matters.** A 1 Mbps isolator cannot pass a CAN FD data
+phase faster than 1 Mbit/s — the bit time gets shorter than the isolator's minimum
+pulse width. If you build this design from these files, fit the π122M31, or another
+isolator rated for the data rate you intend to run.
 
 ## Terminal block (P2)
 
