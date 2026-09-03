@@ -29,14 +29,15 @@ The measurements are on the [SH-C31A page](../../SH-C31A/firmware/): FD data rat
 2 M, 2.5 M, 3.4 M and 5 M all verified with 64-byte payloads, and a 75-minute bidirectional
 run at 5 Mbit/s with zero frames lost and zero bus errors.
 
-**Those per-rate figures were taken on an SH-C31A, not on this board.** The SH-C31G runs the
-same image on the same microcontroller, but it uses a different transceiver and puts a digital
-isolator in the `TXD`/`RXD` path, which adds loop delay.
+**The SH-C31G is rated for the same data rates**, up to 5 Mbit/s. It is the same
+microcontroller running the same image, and every part in the signal path is rated for it: the
+digital isolator between the USB and CAN sides is a 10 Mbit/s part, and the **TJA1051T/3**
+transceiver has its CAN FD fast-phase timing guaranteed to 5 Mbit/s. **5 Mbit/s is the top of
+that transceiver's guaranteed range, so treat it as the ceiling rather than a starting point.**
 
-**What we have run on the SH-C31G itself:** CAN FD, with the isolation in circuit, including
-an extended soak. What we have not repeated on it is the sweep across data rates — so take
-the 5 Mbit/s figure above as an SH-C31A measurement, not an SH-C31G one, until we publish
-that sweep here.
+**On provenance:** the per-rate sweep above was run on an SH-C31A. What has been run on the
+SH-C31G itself is CAN FD with the isolation in circuit, including an extended soak. We will
+publish a sweep taken on this board when we have one.
 
 **To check which build you have**, look at the name the adapter reports over USB — Device
 Manager on Windows, or `lsusb` on Linux. v1.4 reports itself as **`SH-C31x`**, made by

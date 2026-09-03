@@ -12,10 +12,10 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 
 | | |
 |---|---|
-| MCU | **STM32G431C8T6** — 170 MHz Cortex-M4F, FDCAN |
+| MCU | **STM32G431** — 170 MHz Cortex-M4F, FDCAN. Both the **C8T6** (64 KB flash) and the **CBT6** (128 KB) are fitted in production; the firmware is the same either way |
 | Transceiver | **TJA1051T/3** (NXP) |
 | **Isolation** | ✅ **Digital isolator + isolated DC-DC.** Signal *and* power are isolated — the parts, and which one we actually fit, are in [`hardware/`](hardware/) |
-| **CAN FD** | ✅ **Working out of the box** — same firmware and same interface as the SH-C31A, see [`firmware/`](firmware/) |
+| **CAN FD** | ✅ **Working out of the box, at data rates up to 5 Mbit/s** — same firmware and same interface as the SH-C31A, see [`firmware/`](firmware/) |
 | Classic CAN | CAN 2.0A and 2.0B |
 | Clock | No external crystal — the MCU runs from its internal oscillator |
 | USB | USB 2.0 Full Speed, **Type-B receptacle** (cable not captive) |
