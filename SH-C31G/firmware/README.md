@@ -55,6 +55,13 @@ Check what you downloaded before flashing it:
 sha256sum -c SHA256SUMS.txt
 ```
 
+## Other firmware you can run instead
+
+These boards will also run **ElmueSoft's CANable 2.5**, a separate project by a different
+author, in either of two forms — a gs_usb build like ours, or one that turns the adapter
+into a plain **serial port**. Both are published here with our thanks to Elmue, and neither
+is required: → [`docs/other-firmware.md`](../../docs/other-firmware.md)
+
 ## Flashing
 
 Over USB DFU, to the STM32 system bootloader (`0483:DF11`). A USB cable is all you need;

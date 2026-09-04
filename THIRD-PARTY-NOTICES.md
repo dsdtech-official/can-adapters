@@ -108,6 +108,34 @@ we have not independently audited which of them end up in a given build.
 > for use on ST microcontrollers and carries its own conditions. Anyone redistributing our
 > firmware images onward should read it at the link above.
 
+### ElmueSoft CANable 2.5 — optional firmware, not what we ship
+
+We publish two builds of **CANable 2.5** by **ElmueSoft** so that owners of the SH-C31A and
+SH-C31G can choose them. **They are not our work**, they are not what the boards ship with,
+and we did not compile them — what we publish are the author's own precompiled files,
+taken byte for byte from a pinned upstream commit. See
+[`docs/other-firmware.md`](docs/other-firmware.md).
+
+> The MIT License
+> Copyright (c) 2025 ElmueSoft / Nakanishi Kiyomaro / Normadotcom
+> https://netcult.ch/elmue/CANable Firmware Update
+
+| | |
+|---|---|
+| Upstream | <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight> |
+| Pinned commit | `e862f6a6b609ddee22d071e439ebaee1a52010ff` |
+| Licence of `Firmware/` | **MIT** — the notice above must travel with the binaries |
+
+> ⚠️ **The copyright is held by three parties, not one.** Reproduce the notice in full.
+>
+> ⚠️ The **sample applications** in the same upstream repository are under a different
+> licence (**BSD-3-Clause**, `SampleApplication C#/Source/License.txt`), which additionally
+> forbids using the copyright holder's name to endorse or promote products. We do not
+> redistribute those, and we do not present ElmueSoft as endorsing anything of ours.
+
+**With thanks to Elmue** for making CANable 2.5 work on boards that have no crystal fitted,
+which is what ours are.
+
 ---
 
 ## 3. Trademarks
