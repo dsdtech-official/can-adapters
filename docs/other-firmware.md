@@ -43,6 +43,32 @@ model pages was taken on.
   reporting, filter and pin control, flash read/write — through Elmue's own extensions to
   the protocol.
 
+## Software: the author's own application
+
+**If you flash this firmware, [HUD ECU Hacker](https://netcult.ch/elmue/HUD%20ECU%20Hacker/)
+is the application it was written alongside — we recommend it.** Elmue wrote CANable 2.5
+while adding CANable support to that program, and his documentation says it supports the new
+firmware's features in full.
+
+It can also **install this firmware for you**: it carries a built-in CANable firmware
+updater, and using that is what he recommends over flashing by hand.
+
+| | |
+|---|---|
+| What it is | ECU diagnostics and tuning, with a built-in CAN bus debugger, logger and terminal |
+| Protocols | CAN Raw, ISO 15765, **J1939** (8 500 parameters), **NMEA 2000** (3 000 parameters), K-Line (ISO 9141, ISO 14230, KW1281, Honda) |
+| Platform | **Windows only** — 7, 8, 10 and 11. Not Linux |
+| Price | **Charityware** — he asks for a donation to a non-profit of your choice, not to himself |
+| Source | Closed |
+| Where | <https://netcult.ch/elmue/HUD%20ECU%20Hacker/> |
+
+**We link rather than bundle it, and the capabilities listed above are his description
+rather than our measurements.** Questions about it go to him, the same as for the firmware.
+
+> **On Linux you need none of this.** The Candlelight build comes up as a SocketCAN
+> interface through the kernel `gs_usb` driver, and the Slcan build through `slcand` — then
+> `can-utils`, `python-can` or anything else that speaks SocketCAN.
+
 ## Download
 
 Both files are attached to a single release here, and both are **byte-for-byte the files
