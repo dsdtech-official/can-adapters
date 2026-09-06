@@ -161,7 +161,7 @@ sha256sum -c SHA256SUMS.txt
 publish is the build we actually put on a board. We verified that the files in the release
 above are identical to that commit — same SHA-256, same byte count.
 
-> ⚠️ **Upstream ships 16 different `.dfu` files.** They are for different boards and
+> ⚠️ **Upstream ships 18 different `.dfu` files.** They are for different boards and
 > different clock configurations. **Take exactly the two named above** — the `Multiboard`
 > ones. Flashing a variant built for a 25 MHz crystal onto a board that has none will not
 > work, and the failure is not obvious.
