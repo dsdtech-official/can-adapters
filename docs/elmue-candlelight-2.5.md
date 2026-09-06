@@ -35,11 +35,17 @@ On Windows the device path shows it directly — look for `REV_2608` instead of 
 |---|---|---|
 | CAN clock | **170 MHz** | **160 MHz** |
 
-Bit timing is derived from that clock. **A prescaler and segment configuration that gives
-you an exact rate on our firmware will not necessarily give you the same rate here**, and
-the set of rates that land exactly is a different set.
+Bit timing is derived from that clock. **Normally this is not your problem:** a gs_usb host
+asks the device for its clock and its timing limits and computes the prescaler and segments
+from the answer, so both builds simply work. The Linux `gs_usb` driver does this, and so
+does any correctly written host.
 
-**Read the rate back after you bring the interface up.** On Linux:
+⛔ **It becomes your problem with software that assumes a fixed clock.** That software
+programs timings computed for 170 MHz onto a 160 MHz device — the rate and the sample point
+both come out wrong, and **the controller goes bus-off as soon as it sees traffic.** It does
+not degrade gracefully into "a slightly different rate".
+
+**So read the rate back after you bring the interface up.** On Linux:
 
 ```bash
 ip -details link show can0 | grep -E 'bitrate|dbitrate'
