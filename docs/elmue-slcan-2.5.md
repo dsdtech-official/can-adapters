@@ -46,22 +46,41 @@ Ours reported: `MCU: STM32G431` · `DevID: 0x468` · `160 MHz` · `Channels: 1` 
 
 **① The CAN clock is 160 MHz, not the 170 MHz our firmware uses.**
 
-Bit timing derives from it. A configuration that gives an exact rate on our build will not
-necessarily give the same rate here, and a different set of rates lands exactly. **Read the
-rate back after bringing the interface up.**
+Bit timing is derived from that clock. Software that **asks the device for its clock** and
+computes the prescaler and segments from the answer is fine — that is what correct software
+does. Software that **assumes a fixed clock** is not: it programs timings computed for one
+clock onto a device running another, and the result is not a slightly different rate. It is
+a **wrong rate and a wrong sample point, and the controller goes bus-off as soon as it sees
+traffic.** It does not degrade gracefully.
 
-**② `S7` is 800 kbit/s, not 750 kbit/s.**
+⇒ **If a tool asks you to enter the clock by hand, enter 160 MHz.** Otherwise read the
+rate back after bringing the interface up.
 
-We measured it. In the classic slcan table `S7` is commonly 750 k, so **software that
-assumes the standard table will set a different rate than it thinks it is setting.**
+**② `S7` is 800 kbit/s here — and no standard says what it ought to be.**
 
-**③ The sample point is 75.0 %, not the 87.5 % you might expect.**
+We measured 800 kbit/s. **There is no single "classic slcan table"** — every firmware
+picked its own:
 
-We measured 75.0 %. Note that **upstream's own header comment says 87.5 %**, which does not
-match the constant the firmware actually uses — we are reporting what the device does.
+| `S7` = **800 k** | `S7` = **750 k** |
+|---|---|
+| the original LAWICEL specification · the **Linux kernel** (`slcan_bitrate_const[]`) · USBtin · WeActStudio | **CANable's own firmware 1.0 / 2.0**, and `python-can` following it |
 
-⚠️ **This one matters more than it looks.** A mismatched arbitration sample point between
-two nodes can make CAN FD fail **in one direction only**, which presents as a
+⇒ ⚠️ **What this means for you in practice:** `python-can`'s slcan interface follows the
+CANable convention and treats `S7` as 750 k. **Point it at this firmware and the bus runs at
+800 k while your script believes it set 750 k** — and nothing reports an error. The same
+applies to any script or tool carrying its own table.
+
+**Neither value is wrong; they are two conventions.** For a rate that has to be exact, set
+the bit timing explicitly rather than by index.
+
+**③ The sample point is 75.0 %, not the 87.5 % an older reading of the source suggests.**
+
+We measured 75.0 %. **Upstream has confirmed this is deliberate:** the sample point was
+changed from 87.5 % to 75 % in November 2025 because 75 % tested as more robust, and only
+the source-code comments were left behind. They are being corrected upstream.
+
+⚠️ **Sample points still matter more than they look.** A mismatched arbitration sample point
+between two nodes can make CAN FD fail **in one direction only**, which presents as a
 hard-to-diagnose partial failure rather than a clean error. **If you put this firmware on a
 bus with other nodes, check that the sample points agree.**
 
