@@ -8,6 +8,11 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 > **Buy:** <https://www.deshide.com/product-details_SH-C31A.html> ·
 > **Isolated version:** [SH-C31G](https://www.deshide.com/product-details_SH-C31G.html)
 
+> ℹ️ **The [SH-C31B](../SH-C31B/) is this same board**, silkscreened `SH-C31A` like this
+> one, but shipped with serial-port (slcan) firmware instead of ours. **The SH-C31A is the
+> clear one; the SH-C31B is grey.** If yours is clear and comes up as a raw USB device, you
+> have an SH-C31A and this is the right page.
+
 | | |
 |---|---|
 | MCU | **STM32G431** — 170 MHz Cortex-M4F, FDCAN. Both the **C8T6** (64 KB flash) and the **CBT6** (128 KB) are fitted in production; the firmware is the same either way |
