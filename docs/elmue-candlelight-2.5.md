@@ -6,10 +6,18 @@ Third-party firmware by **ElmueSoft**. Licence, download, thanks and support bou
 on [`other-firmware.md`](other-firmware.md) — **read that first**. This page is what
 changes on your bench once you have flashed it.
 
-**File:** `STM32G431-Candlelight2.5-Multiboard.dfu` · 38 215 bytes ·
-`sha256 7adae1c1…4561d7`
+**File:** `STM32G431-Candlelight2.5-Multiboard.dfu` · 38 107 bytes ·
+`sha256 79d438f5…870480`
+
+> 🔴 **This is a snapshot of commit `eb1c7e35` (2026-09-15), not the latest build.**
+> Elmue's own pages always have the current one — see
+> [`other-firmware.md`](other-firmware.md#download), which also lists what changed since our
+> previous snapshot.
 
 Everything below was read off one of our own boards, not from a datasheet.
+> ℹ️ **Which build these readings came from:** commit `e862f6a6`, the snapshot this page
+> carried until 2026-09-17. They have not been repeated on the current build. Nothing here
+> is expected to have moved, but we have not re-read it, so we say so.
 **The board was an SH-C31A.** The SH-C31G is the same microcontroller running the same
 image, but we have not repeated these readings on one.
 
@@ -18,7 +26,7 @@ image, but we have not repeated these readings on one.
 | | Our `v1.4` | **Candlelight 2.5** |
 |---|---|---|
 | VID:PID | `1D50:606F` | **`1D50:606F` — identical** |
-| `bcdDevice` | `REV_0200` | **`REV_2608`** |
+| `bcdDevice` | `REV_0200` — ours, fixed | ⚠️ **carries his build version and moves every release — ⛔ do not identify by it** |
 | Manufacturer | `DSD TECH` | `ElmueSoft (netcult.ch/elmue)` |
 | Product | `SH-C31x` | `Candlelight 2.5 - Multiboard` |
 | Feature bits | `0x5FB` | `0xE53B` |
@@ -27,7 +35,7 @@ image, but we have not repeated these readings on one.
 keys on `1D50:606F` alone will match both. Use the **product string**, the `bcdDevice`
 revision, or the feature bits.
 
-On Windows the device path shows it directly — look for `REV_2608` instead of `REV_0200`.
+On Windows, Device Manager shows the product string — look for **`Candlelight 2.5 - …`** rather than **`SH-C31x`**.
 
 ## 🔴 The CAN clock is different, so your bit timings are too
 

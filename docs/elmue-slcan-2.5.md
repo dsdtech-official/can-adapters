@@ -6,10 +6,18 @@ Third-party firmware by **ElmueSoft**. Licence, download, thanks and support bou
 on [`other-firmware.md`](other-firmware.md) — **read that first**. This page is what
 changes on your bench once you have flashed it.
 
-**File:** `STM32G431-Slcan2.5-Multiboard.dfu` · 38 219 bytes ·
-`sha256 8fb57b07…43e7f59`
+**File:** `STM32G431-Slcan2.5-Multiboard.dfu` · 38 071 bytes ·
+`sha256 8d958470…65555a`
+
+> 🔴 **This is a snapshot of commit `eb1c7e35` (2026-09-15), not the latest build.**
+> Elmue's own pages always have the current one — see
+> [`other-firmware.md`](other-firmware.md#download), which also lists what changed since our
+> previous snapshot.
 
 Everything below was read off one of our own boards, not from a datasheet.
+> ℹ️ **Which build these readings came from:** commit `e862f6a6`, the snapshot this page
+> carried until 2026-09-17. They have not been repeated on the current build. Nothing here
+> is expected to have moved, but we have not re-read it, so we say so.
 **The board was an SH-C31A.** The SH-C31G is the same microcontroller running the same
 image, but we have not repeated these readings on one.
 
@@ -19,7 +27,7 @@ image, but we have not repeated these readings on one.
 |---|---|---|
 | Host interface | raw USB, `gs_usb` / WinUSB | **CDC virtual serial port** |
 | VID:PID | `1D50:606F` | **`16D0:117E`** |
-| `bcdDevice` | `REV_0200` | `REV_2608` |
+| `bcdDevice` | `REV_0200` — ours, fixed | ⚠️ **carries his build version and moves every release — ⛔ do not identify by it** |
 | Product string | `SH-C31x` | `Slcan 2.5 - Multiboard` |
 | Protocol | gs_usb | **slcan `1.05`** |
 
