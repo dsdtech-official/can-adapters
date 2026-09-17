@@ -107,6 +107,10 @@ the factory** — and the firmware can be changed on any of them.
    firmware version, the CAN clock and the bit-timing limits.
 5. **The green LEDs stay dark until software opens the channel.** That is normal →
    [`docs/leds.md`](../docs/leds.md)
+6. **Start from working code** rather than from the protocol spec →
+   [`examples/`](examples/). ⚠️ On a **real** CAN FD bus, read
+   [`examples/canfd.md`](examples/canfd.md) first — the single-digit rate codes are a
+   bench convenience and must not be used there.
 
 ## Third-party firmware, and where support goes
 
@@ -126,11 +130,13 @@ the **MIT licence**. We ship it, we mirror it, and we credit it — we did not w
 | [`manual/`](manual/) | User manual |
 | [`datasheet/`](datasheet/) | Electrical and mechanical specifications |
 | [`hardware/`](hardware/) | Where the design files are, and why they live under the SH-C31A |
+| [`firmware/`](firmware/) | What it ships with, how to confirm it, and how to change it |
+| [`examples/`](examples/) | Working code — `slcand` on Linux, Python over the serial port, and CAN FD |
 
-> **Firmware and examples for this model are not in this folder yet.** Until they land:
-> the firmware is documented in [`docs/elmue-slcan-2.5.md`](../docs/elmue-slcan-2.5.md)
-> and [`docs/other-firmware.md`](../docs/other-firmware.md), and
-> [`docs/identify-firmware.md`](../docs/identify-firmware.md) covers telling builds apart.
+> **The examples here are not the SH-C31A's.** That adapter speaks gs_usb; this one speaks
+> slcan over a serial port, so none of its example code applies. These were written for
+> this firmware and run against it on a bench —
+> [`examples/`](examples/) says what was checked and what was not.
 
 Firmware images and fabrication bundles are attached to
 [Releases](../../../releases), not stored in this folder.
