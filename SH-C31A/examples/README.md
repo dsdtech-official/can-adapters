@@ -154,10 +154,10 @@ firmware, no serial port. Rated to **5 Mbit/s**, the transceiver's ceiling.
 > *arbitration* sample point that matters, not the data-phase one.** Measured: 12
 > percentage points apart on the arbitration phase gave **0 of 50** FD frames and an
 > error-passive receiver, while matching it gave 50 of 50 — with the data-phase sample
-> points mismatched in both runs. **Classic frames, and FD frames sent without BRS, go
-> straight through the fault.**
-> ⛔ **So never use classic or non-BRS traffic to prove the bus is healthy before blaming
-> CAN FD.** The whole story, with the controlled runs:
+> points mismatched in both runs. **Classic frames are untouched by it; FD frames without
+> BRS quietly lose about a third.**
+> ⛔ **So neither classic nor non-BRS traffic proves the bus is healthy — what does is
+> classic and BRS frames both getting through.** The whole story, with the controlled runs:
 > [`linux-socketcan.md`](linux-socketcan.md#-the-fd-failure-you-will-actually-hit-mismatched-sample-points)
 
 ---

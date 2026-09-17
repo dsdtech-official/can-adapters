@@ -191,32 +191,38 @@ came out matched. This is another reason to set both phases explicitly on a real
 The warning above is not theoretical. On a bench, with the adapter transmitting onto a
 **real bus** (not loopback) and a second adapter receiving:
 
+50 frames of each kind, sent in the same pass so all three see identical bus conditions,
+3 trials:
+
 | Frame sent | Peer at **75 %** (matched) | Peer at **87.5 %** (mismatched) |
 |---|---|---|
-| 64-byte frame **with BRS** (`b`) | ✅ arrived | 🔴 **lost** |
-| 64-byte frame **with BRS** (`b`) | ✅ arrived | 🔴 **lost** |
-| 64-byte frame **without BRS** (`d`) | ✅ arrived | ✅ arrived |
-| 8-byte classic frame (`t`) | ✅ arrived | ✅ arrived |
+| 64-byte frame **with BRS** (`b`) | ✅ 50/50 | 🔴 **0/50 — none at all** |
+| 64-byte frame **without BRS** (`d`) | ✅ 50/50 | 🔴 **37 / 34 / 37 of 50 — about 70 %** |
+| 8-byte classic frame (`t`) | ✅ 50/50 | ✅ 50/50 |
 
-Reproduced 3 times. The only thing changed between the two columns was the receiver's
-arbitration sample point.
+The only thing changed between the two columns was the receiver's arbitration sample
+point.
 
-### ⚠️ The consequence is sharper than "FD stops working"
+### ⚠️ It is a gradient, not a switch
 
-**Classic frames still get through. So do FD frames without BRS.** Only the frames that
-switch to the fast data rate are lost.
+**Classic frames are untouched. Non-BRS FD frames are already losing about a third.
+BRS frames do not get through at all.** How badly a frame is affected tracks how much it
+depends on data-phase timing.
 
 So if you are checking whether a bus is healthy:
 
 > **Do not conclude the link is good because classic traffic flows.**
-> **Do not conclude it because FD frames flow either — send frames _with BRS_.**
+> **Do not conclude it because FD frames flow either** — non-BRS FD frames are themselves
+> being dropped here, they just do not all disappear.
+> **A healthy link means classic frames _and_ BRS frames both come through intact.**
 
-A link can carry classic CAN and non-BRS FD perfectly while dropping every BRS frame,
-which is exactly the configuration that looks fine on a bench and fails in the field.
+A link can carry classic CAN perfectly, limp along on non-BRS FD, and drop every single
+BRS frame — which is exactly the configuration that looks fine on a bench and fails in
+the field.
 
 *(We have not established the mechanism — the mismatch was in the arbitration phase while
-the lost frames are the ones switching to the data phase. Directionally that makes sense;
-we did not prove it.)*
+the worst-hit frames are the ones switching to the data phase. Directionally that makes
+sense; we did not prove it.)*
 
 ## What **was** checked on a board, 2026-09-17
 
