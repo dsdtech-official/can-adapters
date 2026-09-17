@@ -47,13 +47,27 @@ Only one thing changes what your program has to do:
 > whatever bus you are attached to by then. **Drain before you close.**
 > The current firmware purges both queues on close.
 
-Two smaller ones: the older firmware **lights neither LED** (not a fault), and it holds
+Two smaller ones: the older firmware **lights neither LED** (the board is fine — that build simply does not drive them), and it holds
 **30** frames in flight rather than 31 — both measured.
 
 > ⚠️ **That ceiling follows the firmware, not the board.** Same chip, same clock, two
 > different numbers. ⛔ **Do not derive one from "it is an SH-C30L".** If you write a bulk
 > sender, keep no more than **30** frames outstanding and it holds on either firmware;
 > push past the ceiling and you lose frames, sometimes without any error at all.
+
+### You have the older one? We recommend updating
+
+**The current firmware is a free download, and the upgrade is reversible** — the bootloader
+lives in ROM and cannot be overwritten. → [`../firmware/`](../firmware/) for the procedure,
+or straight to the **[firmware v2.1
+release](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C30A/fw-v2.1)**
+— one build serves all three boards in this family, so the tag carries only one of the
+three names.
+
+**What you gain:** `v2.1` clocks the microcontroller from the **24 MHz crystal fitted on the
+board**, which holds the bit timing to a tight tolerance — margin you get for free on a long
+or busy bus. Closing the channel purges the transmit queue, so nothing left over from one
+session goes out in the next. Both LEDs work.
 
 **Everything else host software touches is the same** — same chip, same 48 MHz CAN clock,
 same bit rates, same 32-byte bulk endpoint. Both firmwares honour `listen-only`.

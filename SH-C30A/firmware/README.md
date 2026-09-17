@@ -14,8 +14,12 @@ classic bxCAN peripheral, not FDCAN. It runs CAN 2.0A and 2.0B at up to 1 Mbit/s
 
 **Units produced from September 2026 ship with v2.1**, the image on
 [Releases](#download). Anything made before that carries the stock CANable build, and so
-does older stock still moving through distribution. **Those units are not faulty and keep
-working** -- v2.1 is an upgrade, not a fix for a defect.
+does older stock still moving through distribution. **Those units keep working and you can
+stay on them** -- but `v2.1` does fix two behaviours worth having:
+
+- **closing the channel purges the transmit queue**, so frames left over from one session no
+  longer go out after the next open
+- **both LEDs work**
 
 **v2.1 runs the microcontroller from the 24 MHz crystal fitted on the board.** Every
 SH-C30A has that crystal.
