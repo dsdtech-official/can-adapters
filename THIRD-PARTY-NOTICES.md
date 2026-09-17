@@ -123,7 +123,7 @@ taken byte for byte from a pinned upstream commit. See
 | | |
 |---|---|
 | Upstream | <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight> |
-| Pinned commit | `e862f6a6b609ddee22d071e439ebaee1a52010ff` |
+| Pinned commit | `eb1c7e3589b6135469dd0745c3a81911b88513c6` (2026-09-15) |
 | Licence of `Firmware/` | **MIT** — the notice above must travel with the binaries |
 
 > ⚠️ **The copyright is held by three parties, not one.** Reproduce the notice in full.
