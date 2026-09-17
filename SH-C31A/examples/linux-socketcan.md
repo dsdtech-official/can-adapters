@@ -156,20 +156,45 @@ A 180-second bidirectional soak at 2 Mbit/s moved **17548 frames with none lost*
 
 ### 🔴 The FD failure you will actually hit: mismatched sample points
 
-Both ends of an FD link must agree on the **data-phase sample point**, not just on the
-data rate. The sample point is computed by the **host**, from the bit-timing limits the
-device reports — there is no such setting in the firmware.
+Both ends of an FD link must agree on the **arbitration sample point** — the one for the
+nominal phase. **Not the data phase**, which is the intuitive answer and the wrong one.
 
-Measured: with the two ends **12 percentage points apart**, FD traffic went **0 out of
-50** and the receiver went error-passive — while **classic frames over the same wiring,
-same session, went 50 out of 50**.
+That is measured, not reasoned. In a controlled run where the **only** variable was the
+arbitration sample point:
 
-> ⛔ **So never use classic traffic to prove the bus is healthy before blaming CAN FD.**
-> It proves nothing about the data phase. Read the sample point back on both ends:
+| Arbitration sample point | Data-phase sample point | Sent | Received |
+|---|---|---|---|
+| **0.870** vs peer at 0.75 | 0.705, **mismatched** | 50 × FD with BRS | 🔴 **0 / 50**, receiver went error-passive |
+| **0.750**, matched | 0.705, **mismatched in exactly the same way** | 50 × FD with BRS | ✅ **50 / 50** |
+| **0.870** vs peer at 0.75 | 0.705, mismatched | 50 × classic | ✅ **50 / 50** |
+
+The data-phase sample points were mismatched in *both* FD runs, and the run that matched
+the arbitration sample point passed anyway.
+
+The sample point is computed by the **host**, from the bit-timing limits the device
+reports — there is no such setting in the firmware.
+
+**What still gets through while the arbitration sample points disagree:**
+
+| | |
+|---|---|
+| FD frames **with** bit rate switching (`##1`) | 🔴 **dropped** |
+| FD frames **without** BRS (`##0`) | ✅ pass, whole 64-byte payload |
+| Classic frames | ✅ pass |
+
+> ⛔ **So never use classic traffic — nor FD traffic without BRS — to prove the bus is
+> healthy before blaming CAN FD.** Both survive this fault untouched. Read the
+> **arbitration** sample point back on both ends:
 >
 > ```bash
-> ip -details link show can0 | grep -E 'sample-point|dsample-point'
+> ip -details link show can0 | grep -E 'sample-point'
 > ```
+
+> 📕 **Mechanism not verified.** The rate switch happens at the sample point of the BRS
+> bit, which is consistent with everything above, but we have not observed the timing or
+> worked from the standard. We have also not swept intermediate mismatches — only the two
+> values in the table. The BRS-versus-no-BRS split was seen on the same hardware running
+> the slcan firmware, over a small number of frames, reproduced 3 times out of 3.
 
 ## Throughput: there is a limit on frames in flight
 
