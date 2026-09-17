@@ -10,8 +10,9 @@ example code.
 
 > ⚠️ **One exception: the SH-C31B is silkscreened `SH-C31A`.** It is the same board —
 > what makes it an SH-C31B is the firmware fitted at the factory, and that is not printed
-> on anything. If the board says SH-C31A but appears on your computer as a **serial port**
-> rather than a gs_usb device, you have an [SH-C31B](SH-C31B/).
+> on anything. **Tell them apart by the enclosure: the SH-C31A is clear, the SH-C31B is
+> grey.** To be sure which firmware is actually loaded, plug it in — an
+> [SH-C31B](SH-C31B/) comes up as a **serial port**.
 
 | Model | Bus | Isolation | Host connector | CAN connector |
 |---|---|---|---|---|

@@ -17,12 +17,17 @@ instead.
 
 ## Confirm what you have
 
-The board is silkscreened `SH-C31A`, so the print on it will not tell you. Plug it in:
+The board is silkscreened `SH-C31A`, so the print on it will not tell you.
 
-| You see | You have |
+**The enclosure tells you which model was sold:** the SH-C31B is **grey**, the SH-C31A is
+**clear**. ⚠️ **It does not tell you which firmware is on the board now** — either model can
+be flashed with either build, and a grey adapter someone has reflashed will behave like an
+SH-C31A. For that, plug it in:
+
+| You see | The firmware on it is |
 |---|---|
-| A **serial port** — `COM<n>` under *Ports*, or `/dev/ttyACM<n>` | **SH-C31B** — this firmware |
-| A raw USB device under *Universal Serial Bus devices*, or a SocketCAN `can0` | an **SH-C31A** — our gs_usb build |
+| A **serial port** — `COM<n>` under *Ports*, or `/dev/ttyACM<n>` | **Slcan 2.5** — what an SH-C31B ships with |
+| A raw USB device under *Universal Serial Bus devices*, or a SocketCAN `can0` | a **gs_usb build** — what an SH-C31A ships with |
 
 For certainty, send `V` and read the reply. **One command reports the board, the MCU, the
 firmware version, the CAN clock, whether a crystal is in use, and the bit-timing limits.**
