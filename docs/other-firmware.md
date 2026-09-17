@@ -17,6 +17,21 @@ and we publish it here so you can choose.
 > His work is his own. Nothing on this page should be read as him endorsing us or our
 > products.
 
+> ## 🔴 What you download here is a snapshot, not the latest
+>
+> **These files are one specific build, commit
+> [`eb1c7e35`](https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight/commit/eb1c7e3589b6135469dd0745c3a81911b88513c6)
+> of 2026-09-15, mirrored here on 2026-09-16.** Elmue improves this firmware on his own
+> schedule, and when he does, **what is on this page is out of date until we catch up.**
+>
+> **The current version is always on his own pages, never here:**
+> <https://netcult.ch/elmue/CANable%20Firmware%20Update> ·
+> <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight>
+>
+> We mirror a pinned build for two reasons only: so the checksums below have something to
+> check against, and so the file stays reachable. **If you want the newest, go to his
+> repository.**
+
 ## First: which firmwares exist at all
 
 There are four, and only four:
@@ -80,7 +95,7 @@ table above** — this is the short form.
 
 | | |
 |---|---|
-| **Candlelight 2.5 reports the same USB `VID:PID` as our own build** | Both are `1D50:606F`. Any script or udev rule keyed on that alone matches both. Tell them apart by the product string or by `bcdDevice` — `REV_2608` here, `REV_0200` on ours |
+| **Candlelight 2.5 reports the same USB `VID:PID` as our own build** | Both are `1D50:606F`. Any script or udev rule keyed on that alone matches both. Tell them apart by the **product string** — `Candlelight 2.5 - …` here, `SH-C31x` on ours. ⛔ Not by `bcdDevice`: his carries a build version and moves every release |
 | **The CAN clock is 160 MHz; ours is 170 MHz** | Software that asks the device for its clock is fine. Software that assumes a fixed clock programs the wrong timings and **goes bus-off immediately** — it does not degrade into "a slightly different rate" |
 | **On Slcan 2.5, `S7` is 800 kbit/s** | `python-can`'s slcan interface assumes 750 k, so it will run the bus at 800 k while believing it set 750 k. There is no standard value for `S7`; the two conventions both exist |
 
@@ -124,8 +139,8 @@ Elmue publishes**, taken from a pinned commit:
 
 | File | For | SHA-256 |
 |---|---|---|
-| `STM32G431-Candlelight2.5-Multiboard.dfu` | gs_usb / WinUSB | `7adae1c1…4561d7` |
-| `STM32G431-Slcan2.5-Multiboard.dfu` | CDC serial port | `8fb57b07…43e7f59` |
+| `STM32G431-Candlelight2.5-Multiboard.dfu` | gs_usb / WinUSB | `79d438f5…870480` |
+| `STM32G431-Slcan2.5-Multiboard.dfu` | CDC serial port | `8d958470…65555a` |
 | `SHA256SUMS.txt` | checksums for both | — |
 | `THIRD-PARTY-NOTICES.md` | **the MIT notice. Carry it if you mirror these** | — |
 
@@ -148,7 +163,7 @@ sha256sum -c SHA256SUMS.txt
 | | |
 |---|---|
 | Upstream | <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight> |
-| Pinned commit | [`e862f6a6`](https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight/commit/e862f6a6b609ddee22d071e439ebaee1a52010ff) |
+| Pinned commit | [`eb1c7e35`](https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight/commit/eb1c7e3589b6135469dd0745c3a81911b88513c6) · 2026-09-15 |
 | Author's page | <https://netcult.ch/elmue/CANable%20Firmware%20Update> |
 
 > ℹ️ **We renamed the two files.** Upstream calls them
@@ -166,8 +181,29 @@ above are identical to that commit — same SHA-256, same byte count.
 > ones. Flashing a variant built for a 25 MHz crystal onto a board that has none will not
 > work, and the failure is not obvious.
 
-> ⚠️ **Newer versions may exist upstream.** We pin this one because it is the one we tested.
-> If Elmue publishes a newer build, it will be on his repository before it is here.
+> ⚠️ **Newer versions may exist upstream, and sooner or later one will.** We pin a build
+> because that is the one we put on a board — see the snapshot notice at the top of this
+> page. **His repository has the current one before we do.**
+
+### Updated from a previous snapshot?
+
+Until 2026-09-17 this page carried commit `e862f6a6` of 2026-08-27. **What changed between
+the two is his to describe, not ours** — we did not make those changes, and guessing at them
+would be worse than not saying. **His release notes and his own pages are the authority:**
+
+* <https://netcult.ch/elmue/CANable%20Firmware%20Update>
+* <https://github.com/Elmue/CANable-2.5-firmware-Slcan-and-Candlelight>
+
+One practical note, because it concerns the file **we** handed out rather than anything we
+can tell you about his work: if you are staying on the copy we published before 2026-09-17
+and you drive the adapter directly over `gs_usb`, **keep your `echo_id` inside `1`–`255`.**
+We do not see that behaviour on the current file, and the Linux kernel's `gs_usb` driver is
+not affected either way.
+
+> ⚠️ **Do not identify this firmware by `bcdDevice`.** It carries his build version, so it
+> moves every time he releases. **Match on the product string** — `Candlelight 2.5 - …` or
+> `Slcan 2.5 - …`.
+
 
 ## Flashing
 
