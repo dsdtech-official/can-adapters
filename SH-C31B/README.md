@@ -7,8 +7,14 @@ Non-isolated. Part of the **CANable** family of adapters — lineage and attribu
 [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 
 > **The board is an [SH-C31A](../SH-C31A/).** Same microcontroller, same transceiver, same
-> protection, same enclosure, same design files. **What differs is the firmware fitted at
-> the factory**, and that changes how the adapter appears to your computer.
+> protection, same design files. **What differs is the firmware fitted at the factory**,
+> and that changes how the adapter appears to your computer.
+
+> 🔴 **The board is silkscreened `SH-C31A`, and that is correct.** There is one board, and
+> it carries one part number. Nothing printed on it says SH-C31B, because what makes it an
+> SH-C31B is the firmware inside. **To confirm what you have, plug it in:** an SH-C31B
+> appears as a **serial port** (a COM port on Windows, `/dev/ttyACM*` on Linux). An SH-C31A
+> appears as a raw USB device. See [`firmware/`](firmware/).
 
 | | |
 |---|---|

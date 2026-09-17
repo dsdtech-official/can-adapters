@@ -10,6 +10,10 @@ SH-C31B is the same hardware shipped with different firmware in it. There is one
 there is one set of design files, and copying them under a second name would only create two
 things to keep in step.
 
+> 🔴 **The silkscreen reads `SH-C31A`.** That is not a labelling mistake and not the wrong
+> board: it is the part number of the design, and the design is shared. The SH-C31B name
+> describes what was loaded into it at the factory.
+
 ## Where to get them
 
 | File | |

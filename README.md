@@ -8,6 +8,11 @@ example code.
 
 **Find your model below.** The part number is printed on the board.
 
+> ⚠️ **One exception: the SH-C31B is silkscreened `SH-C31A`.** It is the same board —
+> what makes it an SH-C31B is the firmware fitted at the factory, and that is not printed
+> on anything. If the board says SH-C31A but appears on your computer as a **serial port**
+> rather than a gs_usb device, you have an [SH-C31B](SH-C31B/).
+
 | Model | Bus | Isolation | Host connector | CAN connector |
 |---|---|---|---|---|
 | [**SH-C30A**](SH-C30A/) | CAN 2.0A / 2.0B | — | USB-A plug | 3.81 mm terminal |

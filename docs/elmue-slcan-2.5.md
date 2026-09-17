@@ -1,10 +1,17 @@
 <!-- SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH) -->
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
-# ElmueSoft Slcan 2.5 on the SH-C31A and SH-C31G
+# ElmueSoft Slcan 2.5 on the SH-C31A, SH-C31B and SH-C31G
 
 Third-party firmware by **ElmueSoft**. Licence, download, thanks and support boundaries are
-on [`other-firmware.md`](other-firmware.md) — **read that first**. This page is what
-changes on your bench once you have flashed it.
+on [`other-firmware.md`](other-firmware.md) — **read that first**. This page is what this
+firmware does on the bench.
+
+> **Two ways you can be reading this.** On the **[SH-C31B](../SH-C31B/)** this firmware is
+> what the adapter **ships with** — you did not flash it, it arrived that way, and
+> "going back" below means moving to our own build for the first time. On the
+> **[SH-C31A](../SH-C31A/)** and **[SH-C31G](../SH-C31G/)** it is something you chose to
+> flash over ours. **Everything else on this page is the same either way** — it is the same
+> image on the same microcontroller.
 
 **File:** `STM32G431-Slcan2.5-Multiboard.dfu` · 38 071 bytes ·
 `sha256 8d958470…65555a`
@@ -18,8 +25,9 @@ Everything below was read off one of our own boards, not from a datasheet.
 > ℹ️ **Which build these readings came from:** commit `e862f6a6`, the snapshot this page
 > carried until 2026-09-17. They have not been repeated on the current build. Nothing here
 > is expected to have moved, but we have not re-read it, so we say so.
-**The board was an SH-C31A.** The SH-C31G is the same microcontroller running the same
-image, but we have not repeated these readings on one.
+**The board was an SH-C31A.** The **SH-C31B is that same board**, so these readings were
+taken on SH-C31B hardware. The SH-C31G is the same microcontroller running the same image,
+but we have not repeated these readings on one.
 
 ## What changes: it becomes a serial port
 
@@ -44,8 +52,8 @@ there is no risk of confusing the two — but any udev rule or script keyed to
 ## `V` tells you everything
 
 One command reports the board, the MCU, the firmware version, the CAN clock, whether a
-crystal is in use, and the bit-timing limits. **Use it to confirm what you flashed before
-you trust anything else.**
+crystal is in use, and the bit-timing limits. **Use it to confirm what is actually on the
+board before you trust anything else.**
 
 Ours reported: `MCU: STM32G431` · `DevID: 0x468` · `160 MHz` · `Channels: 1` ·
 `Quartz: No`.
@@ -94,17 +102,22 @@ bus with other nodes, check that the sample points agree.**
 
 ## Crystal
 
-`V` reports `Quartz: No`, which is correct: **neither the SH-C31A nor the SH-C31G has a
-crystal fitted.** The MCU runs from its internal oscillator.
+`V` reports `Quartz: No`, which is correct: **none of the SH-C31A, SH-C31B or SH-C31G has
+a crystal fitted.** The MCU runs from its internal oscillator.
 
 ⛔ **Do not flash a variant built for a 25 MHz crystal onto these boards.** Upstream ships
 several G431 slcan variants and they self-report differently — `V` will tell you
 immediately if you took the wrong one. The `Multiboard` build named at the top of this page
 is the one for hardware without a crystal.
 
-## Going back to our firmware
+## Moving to our own firmware
 
-Same DFU procedure, and the bootloader is in ROM and is never overwritten →
+Same DFU procedure either way, and the bootloader is in ROM and is never overwritten →
 [`other-firmware.md`](other-firmware.md#flashing)
 
-⚠️ After flashing back, the adapter returns to `1D50:606F` and stops being a COM port.
+On an **SH-C31A** or **SH-C31G** this puts back the build the adapter came with. On an
+**SH-C31B** it replaces the build it came with — the images are on the
+[SH-C31A firmware page](../SH-C31A/firmware/#download), and they fit all three boards.
+
+⚠️ Afterwards the adapter reports `1D50:606F` and **stops being a COM port**. Any script
+or udev rule keyed to `16D0:117E` will stop matching.
