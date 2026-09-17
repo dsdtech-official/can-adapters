@@ -182,17 +182,24 @@ the arbitration sample point passed anyway.
 The sample point is computed by the **host**, from the bit-timing limits the device
 reports — there is no such setting in the firmware.
 
-**What still gets through while the arbitration sample points disagree:**
+**It is not all-or-nothing.** 50 frames of each kind, sent in the same pass so that all
+three met identical bus conditions, three trials:
 
-| | |
-|---|---|
-| FD frames **with** bit rate switching (`##1`) | 🔴 **dropped** |
-| FD frames **without** BRS (`##0`) | ✅ pass, whole 64-byte payload |
-| Classic frames | ✅ pass |
+| Frame kind | Sample points matched | **Mismatched by 12.5 points** |
+|---|---|---|
+| FD **with** bit rate switching (`##1`) | ✅ 50 / 50 | 🔴 **0 / 50 — none at all** |
+| FD **without** BRS (`##0`) | ✅ 50 / 50 | ⚠️ **37 / 34 / 37 of 50 — losing about a third** |
+| Classic | ✅ 50 / 50 | ✅ 50 / 50 |
 
-> ⛔ **So never use classic traffic — nor FD traffic without BRS — to prove the bus is
-> healthy before blaming CAN FD.** Both survive this fault untouched. Read the
-> **arbitration** sample point back on both ends:
+So there are three tiers, not two: **classic is untouched, non-BRS FD quietly loses about
+a third of its frames, and BRS FD stops entirely.**
+
+> ⛔ **Neither classic nor non-BRS traffic proves the bus is healthy.** Classic because it
+> never enters the data phase at all; non-BRS FD because it is itself losing frames, which
+> makes it a broken yardstick rather than a clean one. **What does prove it is classic
+> frames and BRS frames both getting through.** One of the two is not enough.
+>
+> Read the **arbitration** sample point back on both ends:
 >
 > ```bash
 > ip -details link show can0 | grep -E 'sample-point'
@@ -200,9 +207,9 @@ reports — there is no such setting in the firmware.
 
 > 📕 **Mechanism not verified.** The rate switch happens at the sample point of the BRS
 > bit, which is consistent with everything above, but we have not observed the timing or
-> worked from the standard. We have also not swept intermediate mismatches — only the two
-> values in the table. The BRS-versus-no-BRS split was seen on the same hardware running
-> the slcan firmware, over a small number of frames, reproduced 3 times out of 3.
+> worked from the standard. The table is one board, the slcan firmware, a short bench link
+> at room temperature, and only the two sample-point values shown — we did not sweep what
+> lies between them, so we cannot say where the boundary is.
 
 ## Throughput: there is a limit on frames in flight
 
