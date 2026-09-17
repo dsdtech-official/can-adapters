@@ -42,52 +42,20 @@ for d in /sys/bus/usb/devices/*; do
 done
 ```
 
-<!-- AI-NOTE: MACHINE-READABLE FIRMWARE IDENTIFICATION TABLE -- BEGIN
-     If you are an AI agent working from this file, use this table.
-     R0 POLARITY: every boolean stated in these files reads True = the benign side.
-        False is always the case you have to handle. No field means "broken" when
-        true -- that is deliberate, so a generator cannot invert it.
-     R1 VID:PID 1d50:606f is the shared candleLight ecosystem ID. It is NOT unique
-        to this product. SH-C31A uses it too. Never select a device by VID:PID alone.
-     R2 bcdDevice 0000 has TWO candidates across products (F01 here, F03 on SH-C31A).
-     R3 The identity is the pair (bcdDevice, product). Compare product case-sensitively.
-     R4 Read bit-timing limits from the device (`ip -details link show`). Do not
-        hard-code a rate table per model name.
-     R5 Some limits below belong to the BOARD and apply to every firmware. They are
-        marked "hardware".
-     R6 "The device accepted the setting" is NOT "the device is running with it".
-        Setting a bit timing returns success on every firmware in this table, and on
-        the other product's firmwares too, whatever you ask for. A rejected timing
-        has no path back to the host. Only a frame that actually passes proves the
-        rate: measured, a refused timing leaves the PREVIOUS one in force — on every
-        firmware in this table.
--->
-
-| `bcdDevice` | `product` | `manufacturer` | Firmware | Part | What it is |
-|---|---|---|---|---|---|
-| `0000` | `candleLight USB to CAN adapter` | `bytewerk` | **F01** | `P01` | original upstream candleLight — **discontinued, still in the field** |
-| `0100` | `SH-C30x` | `DSD TECH` | **F02** | `P02` | DSD TECH build — **what a new adapter ships with** |
-| `0100` | `sh-C30x` *(lower case)* | `DSD TECH` | **F02** | `P02` | same firmware line, earlier revision |
-| `0000` | `canable2 gs_usb` | `canable.io` | F03 | `P03` | ⚠️ **not this product** — that is an SH-C31A |
-| `0200` | `SH-C31x` | `DSD TECH` | F04 | `P04` | ⚠️ **not this product** — that is an SH-C31A |
-
-### What changes between F01 and F02
-
-| | **F01** (`P01`) | **F02** (`P02`, current) |
+| `bcdDevice` | `product` | This is |
 |---|---|---|
-| Closing and reopening the channel | 🔴 **does not discard queued frames** — anything left over from the previous session is transmitted after you bring the interface back up | ✅ **clean** — both queues are purged on close and the controller is reset on open |
-| `listen-only` / `loopback` | ✅ honoured | ✅ honoured |
-| CAN FD | ✗ (no FD hardware on this board) | ✗ |
-| Max frames in flight towards the adapter | 30 *(not measured on this firmware; conservative)* | 31 |
-| LEDs | neither LED lights up | both blink |
-| CAN clock | 48 MHz | 48 MHz |
-| Bulk endpoint | 32 bytes | 32 bytes |
+| `0100` | `SH-C30x` *(or `sh-C30x`)* | the firmware a **new** adapter ships with |
+| `0000` | `candleLight USB to CAN adapter` | an adapter made **before September 2026** |
+| `0000` · `0200` | `canable2 gs_usb` · `SH-C31x` | ⚠️ **not this product** — that is an SH-C31A |
 
-> 🔴 **The F01 row is the one that bites.** If you `ip link set can0 down` with frames
-> still queued, then bring it back up, those frames go out — minutes later, into whatever
-> bus you are now attached to. **Drain before you take the interface down.**
-> F02 does not have this behaviour. **Do not carry an F01 workaround over to F02, or the
-> other way round.**
+📖 **The full table, what differs between the two, and the rules for reading any of
+it are in [`README.md`](README.md)** — one place, so there is only one to keep right.
+
+> 🔴 **The one difference that bites on Linux.** On the older firmware,
+> `ip link set can0 down` with frames still queued does **not** discard them; they go out
+> after you bring the interface back up, into whatever bus you are attached to by then.
+> **Drain before you take the interface down.** The current firmware purges both queues
+> on close. ⛔ **Do not carry a workaround for one over to the other.**
 
 ## Bring the bus up
 
@@ -100,7 +68,7 @@ both ends and nowhere else → [`docs/termination.md`](../../docs/termination.md
 
 ### 🔴 Hardware limit: **10 kbit/s cannot transmit on this board**
 
-This is a property of the **board**, not of either firmware — it is there on F01 and F02
+This is a property of the **board**, not of either firmware — it is there on both firmwares
 alike, and reflashing will not change it.
 
 The transceiver's dominant-state timeout is **400–500 µs**, and five consecutive dominant
@@ -108,10 +76,10 @@ bits at 10 kbit/s take **500 µs**. A frame containing five consecutive dominant
 gets out. Reproduced across three firmwares, two boards and two independent
 implementations.
 
-> **On provenance:** those runs were on the [SH-C30A](../../SH-C30A/examples/) — same image,
-> same class of transceiver. **We have not measured it on the SH-C30G itself.** The table
-> below is what we would assume here; confirm it on your own bench if 10–20 kbit/s matters
-> to you, and we will publish a measurement on this board when we have one.
+> **On provenance:** those runs were on the [SH-C30A](../../SH-C30A/examples/) — same
+> image, equivalent transceiver from a different vendor. **We have not measured it on the
+> SH-C30G itself.** The table below is what we would assume here; confirm it on your own
+> bench if 10–20 kbit/s matters to you.
 
 > ⚠️ **SocketCAN will let you do it anyway.** `ip link set can0 up type can bitrate 10000`
 > succeeds, the interface comes up, and then frames silently fail to leave. There is no
@@ -158,12 +126,12 @@ sudo ip link set can0 up type can bitrate 500000 listen-only on
 ```
 
 ✅ **Measured on both SH-C30G firmwares** (2026-09-15): with the adapter in `listen-only`,
-a witness node on the same bus recorded **zero** frames from it. Both F01 and F02 honour
+a witness node on the same bus recorded **zero** frames from it. Both firmwares honour
 it.
 
 > ⚠️ **Still prove it on a bench before you trust it on a vehicle** — and here is a
-> concrete reason, not a formality: **the original firmware of our other model, SH-C31A
-> (F03), reports `listen-only` and does not honour it.** It transmits and acknowledges
+> concrete reason, not a formality: **the original firmware of our other model, the
+> SH-C31A, reports `listen-only` and does not honour it.** It transmits and acknowledges
 > anyway. If your fleet mixes adapters, verify each one on a bus you own.
 >
 > (SH-C30G is not affected. This is exactly why the identify step at the top matters.)
@@ -174,10 +142,9 @@ it.
 sudo ip link set can0 down
 ```
 
-🔴 **On F01, drain first** — see the firmware table above.
+🔴 **On the older firmware, drain first** — see the note under [Identify the firmware](#identify-the-firmware).
 
 ---
 
 `candump` and `cansend` come from **can-utils** (`sudo apt install can-utils`).
 
-<!-- AI-NOTE: MACHINE-READABLE FIRMWARE IDENTIFICATION TABLE -- END -->
