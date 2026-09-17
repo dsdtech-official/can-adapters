@@ -14,10 +14,15 @@ example code.
 | [**SH-C30G**](SH-C30G/) | CAN 2.0A / 2.0B | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
 | [**SH-C30L**](SH-C30L/) | CAN 2.0A / 2.0B | — | USB-A on a lead | 3.81 mm terminal |
 | [**SH-C31A**](SH-C31A/) | **CAN FD** | — | USB-A plug | 3.81 mm terminal |
+| [**SH-C31B**](SH-C31B/) | **CAN FD** | — | USB-A plug | 3.81 mm terminal |
 | [**SH-C31G**](SH-C31G/) | **CAN FD** | ✅ **isolated** | USB Type-B | 5.08 mm terminal |
 
 The isolated models cut the CAN side loose from USB with a digital isolator and their own
 isolated supply — nothing external needed. _More models are being added._
+
+> **The SH-C31A and the SH-C31B are the same board.** They differ only in the firmware
+> fitted at the factory: the SH-C31A speaks **gs_usb**, the SH-C31B appears as an ordinary
+> **serial port**. Either can be reflashed into the other → [SH-C31B](SH-C31B/)
 
 ## What is in each model folder
 
