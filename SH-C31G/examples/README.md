@@ -157,10 +157,15 @@ firmware, no serial port. Rated to **5 Mbit/s**, the transceiver's ceiling.
 > **3 953 488** without a word of complaint. The same applies to a nominal 800 kbit/s on
 > this board's 170 MHz clock. See [`linux-socketcan.md`](linux-socketcan.md).
 
-> 🔴 **Mismatched data-phase sample points are the FD failure you will actually hit.**
-> Measured: 12 percentage points apart gave **0 of 50** FD frames and an error-passive
-> receiver — while **classic frames over the same wiring went 50 of 50**.
-> ⛔ **So never use classic traffic to prove the bus is healthy before blaming CAN FD.**
+> 🔴 **Mismatched sample points are the FD failure you will actually hit — and it is the
+> *arbitration* sample point that matters, not the data-phase one.** Measured: 12
+> percentage points apart on the arbitration phase gave **0 of 50** FD frames and an
+> error-passive receiver, while matching it gave 50 of 50 — with the data-phase sample
+> points mismatched in both runs. **Classic frames, and FD frames sent without BRS, go
+> straight through the fault.**
+> ⛔ **So never use classic or non-BRS traffic to prove the bus is healthy before blaming
+> CAN FD.** The whole story, with the controlled runs:
+> [`linux-socketcan.md`](linux-socketcan.md#-the-fd-failure-you-will-actually-hit-mismatched-sample-points)
 
 ---
 
