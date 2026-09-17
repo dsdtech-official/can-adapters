@@ -1,30 +1,48 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
 # SPDX-License-Identifier: BSD-3-Clause
-"""Read and send classic CAN frames on a DSD TECH SH-C31A from Python, on Windows.
+"""Read and send classic CAN frames on an older SH-C31G from Python, on Windows.
 
-THIS FILE IS FOR THE FIRMWARE A NEW ADAPTER SHIPS WITH.
-    It reports itself over USB as product "SH-C31x", made by "DSD TECH".
-    If you bought the adapter recently, this is the one you have.
+THIS FILE IS FOR THE ORIGINAL canable2 FIRMWARE.
+    It reports itself over USB as product "canable2 gs_usb", made by
+    "canable.io". Adapters made before September 2026 carry it, and so does
+    older stock still moving through distribution.
 
-    Adapters made before September 2026 carry the original upstream canable2
-    firmware instead, which reports "canable2 gs_usb". That one behaves
-    differently in ways that will mislead host software -- one of them is a
-    safety problem on a live bus -- so it gets its own file:
-    python-gsusb-legacy.py
+    Those units are not faulty and they keep working. But three of their
+    behaviours will mislead host software, and the first one is a safety
+    problem on a live bus. Read them before you use this.
 
-    You do not have to work out which one you have before running this. The
-    script checks, and if it finds the older firmware it tells you and stops.
-    README.md also shows you how to check by hand.
+    A new adapter reports "SH-C31x" instead and should use python-gsusb.py.
+    You do not have to work this out first: the script checks and tells you.
 
-CAN FD IS NOT ON THIS ROUTE
-    This firmware does CAN FD and does it well, rated to 5 Mbit/s -- the
-    transceiver's ceiling. But we have only exercised FD over SocketCAN.
-    For CAN FD, use Linux: see linux-socketcan.md.
+*** SAFETY: THIS FIRMWARE REPORTS listen-only AND DOES NOT HONOUR IT ***
+    It reports listen-only and loopback support. It honours NEITHER. Ask it
+    for listen-only and it still transmits and still acknowledges -- no error,
+    no warning, nothing in the log.
 
-ON LINUX, DO NOT USE THIS FILE AT ALL.
+    On a vehicle, or on a customer's machine, that means you believe you are
+    a passive observer while you are actually interfering with the bus.
+
+    If you need a guaranteed silent node, use an adapter running the current
+    firmware, or prove silence with a witness node on a bus you own.
+
+    An RX LED that never lights while traffic is clearly arriving is a strong
+    hint you are holding this firmware.
+
+AN ECHO IS NOT PROOF EITHER
+    This firmware can return an echo for a frame it never put on the bus.
+    Measured: ten frames pushed while the channel was closed produced ten
+    echoes and zero frames on the wire. Do not use echoes as evidence that
+    anything was transmitted.
+
+NO CAN FD ON THIS FIRMWARE
+    It does not report the capability, so the Linux kernel refuses to open FD
+    outright. That is not a configuration problem and no flag works around it.
+    CAN FD needs the current firmware -- see ../firmware/.
+
+ON LINUX, DO NOT USE THIS FILE.
     The kernel's gs_usb driver claims the adapter and gives you an ordinary
-    SocketCAN interface, which is simpler, faster, and carries FD.
+    SocketCAN interface: see linux-socketcan.md.
 
 INSTALL (Windows)
     pip install python-can gs_usb pyusb libusb-package
@@ -39,20 +57,11 @@ ONLY TWO BIT RATES OPEN HERE, AND THAT IS python-can, NOT THE ADAPTER
     Its gs_usb backend solves the bit timing itself, strictly: f_clock/bitrate
     has to factor into brp * nbt with brp <= 32 and nbt in 8..25. This board
     runs a 170 MHz CAN clock, which leaves 500000 and 1000000 and nothing else.
+    The same adapter carries 10 k, 125 k and 250 k perfectly well from
+    SocketCAN.
 
-    Measured: 18 rates tried on real hardware, only those two open, both 20
-    frames each way. The same adapter carries 10 k, 125 k and 250 k perfectly
-    well from SocketCAN at 0.0000 % loss.
-
-    Do NOT carry that list to our SH-C30A: its 48 MHz clock opens eight rates
+    Do NOT carry that to our SH-C30A: its 48 MHz clock opens eight rates
     including 800 k, which cannot open here.
-
-DRAIN BEFORE YOU CLOSE
-    On this firmware, closing the channel does NOT discard frames still queued
-    for transmission. They go out after you open it again -- possibly minutes
-    later, into whatever bus you are attached to by then. The older firmware
-    discards them instead, so this is one to re-check if you port code between
-    the two.
 
 THE ONE THING THAT COSTS PEOPLE DAYS
     bus.send() returning is NOT proof the frame reached the bus. It hands the
@@ -65,18 +74,25 @@ THE ONE THING THAT COSTS PEOPLE DAYS
     never reaches bus-off. Nothing is printed.
 
     To know a frame really went out: read bus.state, or read error frames, or
-    put a second node on the bus. Do not infer it from send().
+    put a second node on the bus. Do not infer it from send(), and on this
+    firmware do not infer it from an echo either.
 
-THERE IS A LIMIT ON FRAMES IN FLIGHT: 30
-    The adapter holds a fixed pool of frame objects. Push more unacknowledged
-    frames at it than the pool holds and the extra ones are lost -- usually
-    with no overflow bit and no error frame at all. Measured on this firmware.
-    This example sends one frame so it cannot hit it; any bulk sender must.
+TWO SMALLER THINGS
+    * Closing the channel DOES discard queued frames here. The current
+      firmware does not, so that is one to re-check if you port code over.
+    * Setting a bit timing always reports success, even one the device will
+      not use -- it stays on the previous one and says nothing. Every firmware
+      across both our products does this; only a frame that actually passes
+      proves the rate. You reach it only by computing bit timings yourself;
+      python-can rejects bad ones before the device sees them.
 
 # AI-NOTE: This file targets ONE firmware of ONE product. The full
 # identification table, the other firmware's row, and the R0..R6 rules for
 # reading any of it are in README.md in this directory. Do not generalise
 # anything here to the other firmware, or to our other product SH-C30A.
+# The frames-in-flight ceiling of 30 quoted for this firmware is INHERITED
+# from the current one, which shares the same single receive buffer structure.
+# It has NOT been measured on this firmware.
 """
 
 import os
@@ -98,18 +114,18 @@ import usb.util   # noqa: E402
 VID, PID = 0x1D50, 0x606F       # shared candleLight ID -- NOT unique to us
 
 # What this file targets, as reported over USB.
-THIS_FIRMWARE = (0x0200, "SH-C31x")
+THIS_FIRMWARE = (0x0000, "canable2 gs_usb")
 
 # Everything else that answers to the same VID:PID, and where to go instead.
 ELSEWHERE = {
-    (0x0000, "canable2 gs_usb"):
-        "the original canable2 firmware -- use python-gsusb-legacy.py",
+    (0x0200, "SH-C31x"):
+        "the firmware a new SH-C31G ships with -- use python-gsusb.py",
     (0x0000, "candleLight USB to CAN adapter"):
-        "an SH-C30A, not an SH-C31A -- use that product's own examples",
+        "an SH-C30A, not an SH-C31G -- use that product's own examples",
     (0x0100, "SH-C30x"):
-        "an SH-C30A, not an SH-C31A -- use that product's own examples",
+        "an SH-C30A, not an SH-C31G -- use that product's own examples",
     (0x0100, "sh-C30x"):
-        "an SH-C30A, not an SH-C31A -- use that product's own examples",
+        "an SH-C30A, not an SH-C31G -- use that product's own examples",
 }
 
 # See the docstring: 170 MHz leaves only these two reachable from python-can.
@@ -149,6 +165,11 @@ def find_adapter():
             usb.util.dispose_resources(dev)
 
     if match:
+        print("*** This adapter runs the original canable2 firmware. ***")
+        print("    listen-only and loopback are REPORTED and NOT HONOURED:")
+        print("    it transmits and acknowledges anyway. Do not put it on a")
+        print("    bus you must not disturb. An echo is not proof of")
+        print("    transmission on this firmware either. No CAN FD.")
         return match
 
     if not seen:
@@ -225,10 +246,8 @@ def main() -> int:
         print("  (ERROR_PASSIVE usually means nothing acknowledged the frame,")
         print("   or the bit rate does not match the rest of the bus)")
     finally:
-        # DRAIN BEFORE YOU CLOSE, see the module docstring. On this firmware
-        # anything still queued when you close is transmitted after the next
-        # open, not discarded. This example sends one frame, so in practice the
-        # queue is empty here -- a program that sends in bulk has to check.
+        # This firmware discards queued frames on close. The current one does
+        # not -- check that if you port this code across.
         #
         # close_bus(), not bus.shutdown() -- see its docstring.
         close_bus(bus)
