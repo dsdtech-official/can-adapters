@@ -37,6 +37,22 @@ and if you picked the wrong one it says so and stops.
 > **An RX LED that never lights while traffic is clearly arriving is a strong hint you are
 > holding the older one.**
 
+### You have the older one? We recommend updating
+
+**The current firmware is a free download, and the upgrade is reversible** — the bootloader
+lives in ROM and cannot be overwritten. → [`../firmware/`](../firmware/) for the procedure,
+or straight to the **[firmware v1.4
+release](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.4)**
+— one build serves both boards in this pair, so the tag carries only one of the two names.
+
+**What you gain:** `listen-only` that actually silences the adapter, echoes you can trust,
+and **CAN FD to 5 Mbit/s** — which the older build does not offer at all.
+
+**What changes in the other direction**, so you are not surprised: the current firmware
+does **not** discard queued frames when you close the channel, so drain before you close.
+And `bcdDevice` moves from `REV_0000` to `REV_0200`, so anything matching on the revision
+string needs updating.
+
 ---
 
 ## What is different

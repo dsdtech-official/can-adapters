@@ -16,9 +16,23 @@ flash, licensing. Everything below is the short form.
 kernel `gs_usb` driver on Linux, WinUSB on Windows. On Linux that means a standard SocketCAN
 interface with nothing to install.
 
-**Units produced from September 2026 ship with v1.4.** Anything made before that carries an
-earlier build, and so does older stock still moving through distribution. Those units are
-not faulty and keep working.
+**Units produced from September 2026 ship with v1.4.** Anything made before that carries
+the original upstream canable2 build, and so does older stock still moving through
+distribution. **Those units work, and you can keep using them** — but that build has
+three limitations worth knowing about, and one of them matters on a live bus:
+
+- 🔴 **It reports `listen-only` support and does not honour it.** Ask it to stay silent and
+  it still transmits and still acknowledges, with no error and no warning. If you need a
+  guaranteed passive node, that build cannot give you one.
+- 🔴 **It has no CAN FD at all** — it does not report the capability, so the kernel
+  refuses to open FD on it.
+- ⚠️ **Its echoes are not trustworthy**: ten frames pushed while the channel was closed
+  produced ten echoes and zero frames on the wire.
+
+⭐ **So we do recommend updating** — the file below is free, and the upgrade is reversible
+because the bootloader lives in ROM and is never overwritten. ⚠️ **One thing changes in the
+other direction**: `v1.4` does **not** discard queued frames when you close the channel,
+while the older build does, so drain before you close.
 
 ## CAN FD works out of the box
 
