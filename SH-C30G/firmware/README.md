@@ -17,8 +17,9 @@ below is the short form.
 driver on Linux, WinUSB on Windows.
 
 **Units produced from September 2026 ship with v2.1.** Anything made before that carries an
-earlier build, and so does older stock still moving through distribution. Those units are
-not faulty and keep working.
+earlier build, and so does older stock still moving through distribution. **Those units keep
+working and you can stay on them** — but `v2.1` fixes two behaviours worth having, and the
+[SH-C30A page](../../SH-C30A/firmware/) lists them.
 
 **The SH-C30G has no CAN FD and cannot gain it by reflashing** — the STM32F072 has a classic
 bxCAN peripheral, not FDCAN. It runs CAN 2.0A and 2.0B at up to 1 Mbit/s.
