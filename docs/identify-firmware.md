@@ -11,7 +11,7 @@ interchangeable at the host end — the software you use depends on which one is
 | Windows | `COM<n>` in Device Manager, under *Ports* | *Universal Serial Bus devices*, uses WinUSB |
 | Linux | `/dev/ttyACM<n>` | claimed by the kernel `gs_usb` driver → a **SocketCAN** interface (`can0`) |
 | macOS | `/dev/tty.usbmodem*` | not supported by the kernel; needs userspace software |
-| CAN FD | supported when the software opens the serial port directly | not supported |
+| CAN FD | supported, when the software opens the serial port directly | **supported on the SH-C31x boards**, over the same interface as classic CAN. The SH-C30x boards do not do CAN FD in hardware at all |
 | Typical software | python-can (`slcan`), cangaroo, SavvyCAN, `slcand` | `can-utils`, SocketCAN, cangaroo, python-can (`gs_usb`) |
 
 ## Telling them apart in 10 seconds
