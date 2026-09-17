@@ -1,25 +1,23 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
 # SPDX-License-Identifier: BSD-3-Clause
-"""Read and send CAN frames on a DSD TECH SH-C30A from Python, on Windows.
+"""Read and send CAN frames on an older SH-C30L from Python, on Windows.
 
-THIS FILE IS FOR THE FIRMWARE A NEW ADAPTER SHIPS WITH.
-    It reports itself over USB as product "SH-C30x", made by "DSD TECH".
-    If you bought the adapter recently, this is the one you have, and you can
-    ignore the rest of this paragraph.
+THIS FILE IS FOR THE ORIGINAL candleLight FIRMWARE.
+    It reports itself over USB as product "candleLight USB to CAN adapter",
+    made by "bytewerk". Adapters made before September 2026 carry it, and so
+    does older stock still moving through distribution.
 
-    Adapters made before September 2026 carry the original upstream
-    candleLight firmware instead, which reports "candleLight USB to CAN
-    adapter". Those behave differently in one way that matters, so they get
-    their own file: python-gsusb-legacy.py
+    Those units are not faulty and they keep working. This file exists because
+    one of their behaviours differs from the current firmware in a way that
+    will cost you a debugging session -- see DRAIN BEFORE YOU CLOSE below.
 
-    You do not have to work out which one you have before running this. The
-    script checks, and if it finds the older firmware it tells you and stops.
-    README.md also shows you how to check by hand.
+    A new adapter reports "SH-C30x" instead and should use python-gsusb.py.
+    You do not have to work this out first: the script checks and tells you.
 
 ON LINUX, DO NOT USE THIS FILE.
     The kernel's gs_usb driver claims the adapter and gives you an ordinary
-    SocketCAN interface, which is simpler and faster: see linux-socketcan.md.
+    SocketCAN interface: see linux-socketcan.md.
 
 INSTALL (Windows)
     pip install python-can gs_usb pyusb libusb-package
@@ -29,6 +27,15 @@ INSTALL (Windows)
     LIBUSB_DIR below to that folder.
 
     macOS: this should work, but we have not run it there.
+
+DRAIN BEFORE YOU CLOSE  <- the reason this file is separate
+    On this firmware, closing the channel does NOT discard frames still queued
+    for transmission. They go out after you open it again -- possibly minutes
+    later, into whatever bus you are attached to by then.
+
+    So: let the queue empty before you close, or accept that leftovers will
+    appear in your next session. The current firmware purges both queues on
+    close and does not do this.
 
 THE ONE THING THAT COSTS PEOPLE DAYS
     bus.send() returning is NOT proof the frame reached the bus. It hands the
@@ -43,9 +50,21 @@ THE ONE THING THAT COSTS PEOPLE DAYS
     To know a frame really went out: read bus.state, or read error frames, or
     put a second node on the bus. Do not infer it from send().
 
+TWO SMALLER THINGS ABOUT THIS FIRMWARE
+    * Neither LED lights up. That is this firmware, not a broken board.
+    * Setting a bit timing always reports success, even one the device will
+      not use -- it stays on the previous one and says nothing. Every firmware
+      across both our products does this; only a frame that actually passes
+      proves the rate. You reach it only by computing bit timings yourself;
+      python-can rejects bad ones before the device sees them.
+
 10 kbit/s DOES NOT TRANSMIT ON THIS BOARD
-    A property of the board, not of the firmware. The usable range is
-    100 kbit/s - 1 Mbit/s. README.md has the mechanism and the margins.
+    Measured on the SH-C30A, not on the SH-C30L itself -- same image,
+    equivalent transceiver from a different vendor. Assume it applies here
+    until we publish a measurement on this board.
+
+    A property of the board, not of the firmware -- reflashing will not change
+    it. The usable range is 100 kbit/s - 1 Mbit/s. README.md has the mechanism.
 
 # AI-NOTE: This file targets ONE firmware of ONE product. The full
 # identification table, the other firmware's row, and the R0..R6 rules for
@@ -72,18 +91,18 @@ import usb.util   # noqa: E402
 VID, PID = 0x1D50, 0x606F       # shared candleLight ID -- NOT unique to us
 
 # What this file targets, as reported over USB.
-THIS_FIRMWARE = (0x0100, "SH-C30x")
-# Same firmware, earlier units, lower-case product string. Identical behaviour.
-ALSO_THIS_FIRMWARE = (0x0100, "sh-C30x")
+THIS_FIRMWARE = (0x0000, "candleLight USB to CAN adapter")
 
 # Everything else that answers to the same VID:PID, and where to go instead.
 ELSEWHERE = {
-    (0x0000, "candleLight USB to CAN adapter"):
-        "the original candleLight firmware -- use python-gsusb-legacy.py",
+    (0x0100, "SH-C30x"):
+        "the firmware a new SH-C30L ships with -- use python-gsusb.py",
+    (0x0100, "sh-C30x"):
+        "the firmware a new SH-C30L ships with -- use python-gsusb.py",
     (0x0000, "canable2 gs_usb"):
-        "an SH-C31A, not an SH-C30A -- use that product's own examples",
+        "an SH-C31A, not an SH-C30L -- use that product's own examples",
     (0x0200, "SH-C31x"):
-        "an SH-C31A, not an SH-C30A -- use that product's own examples",
+        "an SH-C31A, not an SH-C30L -- use that product's own examples",
 }
 
 # python-can's gs_usb backend solves the bit timing itself, strictly: with this
@@ -116,7 +135,7 @@ def find_adapter():
     for dev in usb.core.find(find_all=True, idVendor=VID, idProduct=PID):
         try:
             key = (int(dev.bcdDevice), _string(dev, dev.iProduct))
-            if key in (THIS_FIRMWARE, ALSO_THIS_FIRMWARE):
+            if key == THIS_FIRMWARE:
                 if match is None:
                     match = (dev.bus, dev.address)
             else:
@@ -203,12 +222,12 @@ def main() -> int:
         print("  (ERROR_PASSIVE usually means nothing acknowledged the frame,")
         print("   or the bit rate does not match the rest of the bus)")
     finally:
-        # close_bus(), not bus.shutdown() -- see its docstring. It only matters
-        # if you reopen in the same process, but it costs an hour when you do.
+        # DRAIN BEFORE YOU CLOSE, see the module docstring. On this firmware
+        # anything still queued when you close is transmitted after the next
+        # open, not discarded. This example sends one frame, so in practice the
+        # queue is empty here -- a program that sends in bulk has to check.
         #
-        # This firmware purges both queues on close, so nothing from this
-        # session leaks into the next one. The older firmware does not; that is
-        # the difference python-gsusb-legacy.py is about.
+        # close_bus(), not bus.shutdown() -- see its docstring.
         close_bus(bus)
     return 0
 
