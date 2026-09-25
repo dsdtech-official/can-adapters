@@ -1,0 +1,1196 @@
+SPDX-FileCopyrightText: 2026 DongGuan DESHIDE TECHNOLOGY CO., LTD (DSD TECH)
+SPDX-License-Identifier: MIT
+
+SH-C31A firmware v1.5 -- patch against
+https://github.com/tymmothy/candleLight_fw_canable_v2_fd  at commit 49d96c6
+
+The upstream project is MIT-licensed; this patch is released under the same
+licence. Apply with `git apply` on a clean checkout of that commit and build
+as described in BUILD.md. Everything v1.5 adds sits behind
+CONFIG_BOOT0_DEFAULT_OFF_SH_C31A: without it the same patch builds v1.4.
+
+diff --git a/include/can.h b/include/can.h
+index f933d55..2df4603 100644
+--- a/include/can.h
++++ b/include/can.h
+@@ -38,19 +38,32 @@ typedef struct {
+ 	bool fd;
+ 	led_data_t leds;
+ 	FDCAN_ProtocolStatusTypeDef status_old;
++	/*
++	 * These were uint8_t upstream, which is narrower than the FDCAN registers
++	 * they end up in: NTSEG1 holds 1..256 and NSJW/NTSEG2 hold 1..128. The
++	 * narrow type is why gs_device_bt_const could only ever advertise the
++	 * bxCAN limits of 16/8/4 -- anything larger could not survive the trip.
++	 */
+ 	uint16_t brp;
+-	uint8_t tseg1;
+-	uint8_t tseg2;
+-	uint8_t sjw;
++	uint16_t tseg1;
++	uint16_t tseg2;
++	uint16_t sjw;
+ 	uint16_t dbrp;
+-	uint8_t dtseg1;
+-	uint8_t dtseg2;
+-	uint8_t dsjw;
++	uint16_t dtseg1;
++	uint16_t dtseg2;
++	uint16_t dsjw;
+ } can_data_t;
+ 
+ void can_init(can_data_t *hcan, FDCAN_GlobalTypeDef *instance);
+-bool can_set_bittiming(can_data_t *hcan, uint16_t brp, uint8_t tseg1, uint8_t tseg2, uint8_t sjw);
+-bool can_set_data_bittiming(can_data_t *hcan, uint16_t brp, uint8_t tseg1, uint8_t tseg2, uint8_t sjw);
++/*
++ * Takes uint32_t, not the width of the fields above, on purpose: the host
++ * sends these as u32 in struct gs_device_bittiming, and the caller used to
++ * narrow them at the call site -- i.e. BEFORE any range check. A host asking
++ * for tseg1 = 65792 would have been truncated to 256 and accepted as valid.
++ * Range-check first, then store.
++ */
++bool can_set_bittiming(can_data_t *hcan, uint32_t brp, uint32_t tseg1, uint32_t tseg2, uint32_t sjw);
++bool can_set_data_bittiming(can_data_t *hcan, uint32_t brp, uint32_t tseg1, uint32_t tseg2, uint32_t sjw);
+ void can_enable(can_data_t *hcan, bool loop_back, bool listen_only, bool one_shot, bool fd);
+ void can_disable(can_data_t *hcan);
+ bool can_is_enabled(can_data_t *hcan);
+@@ -62,6 +75,12 @@ bool can_send(can_data_t *hcan, struct gs_host_frame *frame);
+ 
+ void can_get_error_status(can_data_t *hcan, FDCAN_ProtocolStatusTypeDef *status, FDCAN_ErrorCountersTypeDef *counters);
+ 
++/** Fill in bus state + error counters for GS_USB_BREQ_GET_STATE.
++ * A closed channel reports GS_CAN_STATE_STOPPED with zeroed counters rather
++ * than stale FDCAN register contents -- see the comment on the definition.
++ */
++void can_get_device_state(can_data_t *hcan, struct gs_device_state *state);
++
+ /** parse status value returned by can_get_error_status().
+  * @param frame : will hold the generated error frame
+  * @param err : holds the contents of the ESR register
+diff --git a/include/config.h b/include/config.h
+index bb034d4..fed2aff 100644
+--- a/include/config.h
++++ b/include/config.h
+@@ -44,6 +44,45 @@ THE SOFTWARE.
+ 
+ #define USBD_VID					 0x1d50
+ #define USBD_PID_FS					 0x606f
++
++/*
++ * Device release number, reported as bcdDevice.
++ *
++ * This must not stay at 0x0000, the value this firmware used to report.
++ * Windows caches the answer to "does this device have MS OS descriptors?" in
++ * HKLM\SYSTEM\CurrentControlSet\Control\usbflags\<VID><PID><bcdDevice>, and it
++ * does not ask again for a device that once said no. A host that has already
++ * seen a firmware without working MS OS descriptors would therefore never pick
++ * up the ones added here.
++ *
++ * Bumping this makes the cache key different, so the host asks afresh.
++ *
++ * Two values are deliberately avoided: 0x2608 belongs to the CANable 2.5
++ * firmware, and 0x0100 is what our patched candleLight_fw build reports on the
++ * SH-C30A. All three share VID:PID 1d50:606f, so reusing a value would give
++ * two different products the same hardware ID -- and would make one product's
++ * poisoned usbflags entry affect the other.
++ *
++ * From v1.5 on the low byte carries the version as well: the high byte stays the
++ * product line (0x02 = SH-C31x), the low byte is the BCD firmware version, so
++ * a host tells the releases apart without opening the device. 0x0200 stays v1.4.
++ */
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++#define USBD_BCD_DEVICE				 0x0215 // v1.5
++#else
++#define USBD_BCD_DEVICE				 0x0200
++#endif
++
++/*
++ * Everything v1.5 changes against the shipped v1.4 hangs off this one switch,
++ * so a build without it still reproduces v1.4 byte for byte.
++ * v1.5 = the BOOT0 policy (see dfu.h) + queue purge on MODE_RESET + GET_STATE
++ * + FD echoes keeping their FD flag, with the timestamp in the FD slot.
++ */
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++#define CONFIG_SH_C31A_V15
++#endif
++
+ #define USBD_LANGID_STRING			 1033
+ #define USBD_CONFIGURATION_STRING_FS (uint8_t*) GIT_HASH
+ #define USBD_INTERFACE_STRING_FS	 (uint8_t*) "gs_usb interface"
+@@ -96,20 +135,97 @@ THE SOFTWARE.
+ 	#define LEDTX_Active_High 0
+ 
+ #elif defined BOARD_canable2
++	/*
++	 * The SH-C31A ships running this board, so out of the box it introduces
++	 * itself as canable.io's own product. CONFIG_STRINGS_SH_C31X puts DSD
++	 * TECH's name on it instead.
++	 *
++	 * Nothing that binds to this device reads these strings: the Linux kernel
++	 * gs_usb driver and python-can match on VID/PID, and Windows binds WinUSB
++	 * from the MS OS descriptors and the device interface GUID. They are
++	 * display names, and a host that already installed this firmware may keep
++	 * showing the cached old one until the device re-enumerates under a new
++	 * hardware ID. Up to v1.4 bcdDevice stayed 0x0200 across revisions; from
++	 * v1.5 it carries the version, so each release is a new hardware ID.
++	 *
++	 * DFU_INTERFACE_STRING_FS moves with them. It is what Windows shows as the
++	 * name of the MI_01 child node, so leaving it behind would put a node
++	 * called "canable ..." under a device called SH-C31x.
++	 *
++	 * USBD_INTERFACE_STRING_FS ("gs_usb interface") deliberately does NOT move:
++	 * that one is a protocol identifier rather than a brand, and software looks
++	 * for it.
++	 */
++#if defined(CONFIG_STRINGS_SH_C31X)
++	#define USBD_PRODUCT_STRING_FS			(uint8_t*) "SH-C31x"
++	#define USBD_MANUFACTURER_STRING		(uint8_t*) "DSD TECH"
++	#define DFU_INTERFACE_STRING_FS			(uint8_t*) "SH-C31x firmware upgrade interface"
++#else
+ 	#define USBD_PRODUCT_STRING_FS			(uint8_t*) "canable2 gs_usb"
+ 	#define USBD_MANUFACTURER_STRING		(uint8_t*) "canable.io"
+ 	#define DFU_INTERFACE_STRING_FS			(uint8_t*) "canable firmware upgrade interface"
++#endif
+ 
+ 	// SILENT pin not connected
++	/*
++	 * The DSD TECH SH-C31A ships running this board's configuration, and on
++	 * that hardware the RX LED pin below is wrong: its schematic puts the RX
++	 * LED on PA0, active low, while PB11 is not connected at all. The TX LED
++	 * on PA15 active low is already correct for both boards, and so is having
++	 * no SILENT pin -- the SH-C31A wires the TJA1051's S input straight to
++	 * ground, so nothing on the MCU controls it.
++	 *
++	 * Defining CONFIG_LEDS_SH_C31A moves the RX LED and changes nothing else;
++	 * every USB descriptor stays byte for byte identical. Leave it undefined
++	 * and this board builds exactly as upstream has it, for canable.io's own
++	 * hardware.
++	 */
++#if defined(CONFIG_LEDS_SH_C31A)
++	#define LEDRX_GPIO_Port GPIOA
++	#define LEDRX_Pin GPIO_PIN_0	/* SH-C31A: net LED2, cathode to the pin */
++	#define LEDRX_Mode GPIO_MODE_OUTPUT_PP
++	#define LEDRX_Active_High 0
++#else
+ 	#define LEDRX_GPIO_Port GPIOB
+ 	#define LEDRX_Pin GPIO_PIN_11	/* green */
+ 	#define LEDRX_Mode GPIO_MODE_OUTPUT_PP
+ 	#define LEDRX_Active_High 1
++#endif
+ 
++	/*
++	 * FDCAN kernel clock. This fork runs the G431 at 160 MHz; the firmware the
++	 * SH-C31A ships with runs it at 170 MHz, which is the part's maximum and
++	 * what canable.io's own build uses. That difference is visible to every
++	 * host: fclk_can is reported in gs_device_bt_const and every bit timing the
++	 * host computes is derived from it.
++	 *
++	 * CONFIG_CLK170_SH_C31A puts the clock back where the shipping hardware had
++	 * it. Leave it undefined and this board builds exactly as upstream has it.
++	 *
++	 * Both constants have to move together. TIM2_CLOCK_SPEED is what timer.c
++	 * divides down for the 1 MHz hardware-timestamp tick (TIM2->PSC =
++	 * TIM2_CLOCK_SPEED / 1000000 - 1); leaving it at 160 while the part runs at
++	 * 170 would make every device-side timestamp 6.25% short. 170 divides
++	 * exactly, so the tick stays at 1 MHz with no rounding.
++	 *
++	 * Known cost, accepted: 170 is not as divisible as 160. 800 kbit/s
++	 * (212.5 tq) and CAN FD data rates of 4 and 8 Mbit/s (42.5 and 21.25 tq)
++	 * cannot be hit exactly at 170 MHz, while all of them can at 160. The
++	 * firmware this board ships with does not advertise CAN FD at all, so no
++	 * existing host can be relying on 4 or 8 Mbit/s.
++	 */
++#if defined(CONFIG_CLK170_SH_C31A)
++	#define TIM2_CLOCK_SPEED		 170000000
++#else
+ 	#define TIM2_CLOCK_SPEED		 160000000
++#endif
+ 
+ 	#define CAN_INTERFACE            FDCAN1
++#if defined(CONFIG_CLK170_SH_C31A)
++	#define CAN_CLOCK_SPEED          170000000
++#else
+ 	#define CAN_CLOCK_SPEED          160000000
++#endif
+ 	#define NUM_CAN_CHANNEL          1
+ 
+ 	#define LEDTX_GPIO_Port GPIOA
+diff --git a/include/dfu.h b/include/dfu.h
+index 6ee6894..3307fdb 100644
+--- a/include/dfu.h
++++ b/include/dfu.h
+@@ -27,3 +27,30 @@ THE SOFTWARE.
+ #pragma once
+ 
+ void dfu_run_bootloader(void);
++
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++/*
++ * SH-C31A: PB8 is both BOOT0 and CAN_RXD, so an idle (recessive) bus holds
++ * BOOT0 high at every reset and the board can drop into the ROM bootloader on
++ * its own. The option bytes can make the chip ignore the pin (nSWBOOT0 = 0,
++ * nBOOT0 = 1: always boot main flash). This firmware keeps it that way and
++ * lets the host re-enable the pin for exactly one power cycle, which is how a
++ * firmware update gets in (SW1 to BOOT, then power the board up).
++ *
++ * The chip only loads the option bytes at power-on, so every write below takes
++ * effect from the NEXT power cycle, not the current one.
++ */
++#include <stdbool.h>
++
++#define BOOT0_PINID            1       // same pin id as ElmueSoft's PINID_BOOT0
++#define BOOT0_PINOP_DISABLE    5       // same values as ElmueSoft's ePinOperation
++#define BOOT0_PINOP_ENABLE     6
++#define BOOT0_PINST_ENABLED    0x0002  // same bit as ElmueSoft's PINST_Enabled
++#define BOOT0_PINST_PENDING    0x0100  // ours: differs from what this power cycle booted with
++
++void boot0_latch_at_boot(void);        // call first thing in main(), before any write
++bool boot0_pin_enabled(void);          // what the option bytes say now
++bool boot0_pin_enabled_at_boot(void);  // what this power cycle actually booted with
++void boot0_request(bool enable);       // from USB context: queue a change for boot0_service()
++void boot0_service(bool usb_configured, bool can_open); // main loop: do the queued / policy write
++#endif
+diff --git a/src/can.c b/src/can.c
+index d68eae1..10556a9 100644
+--- a/src/can.c
++++ b/src/can.c
+@@ -37,14 +37,32 @@ void can_init(can_data_t *hcan, FDCAN_GlobalTypeDef *instance)
+ 	device_can_init(hcan, instance);
+ }
+ 
+-bool can_set_bittiming(can_data_t *hcan, uint16_t brp, uint8_t tseg1, uint8_t tseg2, uint8_t sjw)
++/*
++ * The bounds below are the FDCAN register widths, taken from
++ * IS_FDCAN_NOMINAL_*() / IS_FDCAN_DATA_*() in stm32g4xx_hal_fdcan.h:
++ *
++ *   nominal   prescaler 1..512   sjw 1..128   tseg1 1..256   tseg2 1..128
++ *   data      prescaler 1..32    sjw 1..16    tseg1 1..32    tseg2 1..16
++ *
++ * Upstream used one set of bxCAN numbers (16/8/4, prescaler 1024) for every
++ * board, which is wrong in both directions on this part: it advertised
++ * prescalers the hardware cannot do, and it hid most of the segment range the
++ * hardware does have. The segment range is not cosmetic -- with tseg capped at
++ * 16/8 a bit is at most 25 tq, so low bitrates can only be reached by running
++ * the prescaler past its limit, and they end up unreachable or silently wrong.
++ *
++ * The old code also masked the prescaler with 0x3FF before writing it into the
++ * register, which turned an out-of-range value into a different bit rate with
++ * no error anywhere. The mask is gone: the range check above is the guard.
++ */
++bool can_set_bittiming(can_data_t *hcan, uint32_t brp, uint32_t tseg1, uint32_t tseg2, uint32_t sjw)
+ {
+-	if (  (brp>0) && (brp<=1024)
+-	   && (tseg1>0) && (tseg1<=16)
+-	   && (tseg2>0) && (tseg2<=8)
+-	   && (sjw>0) && (sjw<=4)
++	if (  (brp>0) && (brp<=512)
++	   && (tseg1>0) && (tseg1<=256)
++	   && (tseg2>0) && (tseg2<=128)
++	   && (sjw>0) && (sjw<=128)
+ 		  ) {
+-		hcan->brp = brp & 0x3FF;
++		hcan->brp = brp;
+ 		hcan->tseg1 = tseg1;
+ 		hcan->tseg2 = tseg2;
+ 		hcan->sjw = sjw;
+@@ -55,14 +73,14 @@ bool can_set_bittiming(can_data_t *hcan, uint16_t brp, uint8_t tseg1, uint8_t ts
+ 	}
+ }
+ 
+-bool can_set_data_bittiming(can_data_t *hcan, uint16_t brp, uint8_t tseg1, uint8_t tseg2, uint8_t sjw)
++bool can_set_data_bittiming(can_data_t *hcan, uint32_t brp, uint32_t tseg1, uint32_t tseg2, uint32_t sjw)
+ {
+-	if (  (brp>0) && (brp<=1024)
+-	   && (tseg1>0) && (tseg1<=16)
+-	   && (tseg2>0) && (tseg2<=8)
+-	   && (sjw>0) && (sjw<=4)
++	if (  (brp>0) && (brp<=32)
++	   && (tseg1>0) && (tseg1<=32)
++	   && (tseg2>0) && (tseg2<=16)
++	   && (sjw>0) && (sjw<=16)
+ 		  ) {
+-		hcan->dbrp = brp & 0x3FF;
++		hcan->dbrp = brp;
+ 		hcan->dtseg1 = tseg1;
+ 		hcan->dtseg2 = tseg2;
+ 		hcan->dsjw = sjw;
+@@ -174,7 +192,21 @@ bool can_is_enabled(can_data_t *hcan)
+ 
+ 	state = HAL_FDCAN_GetState(&hcan->handle);
+ 
++#if defined(CONFIG_SH_C31A_V15)
++	/*
++	 * "Running", not "ever initialised". HAL_FDCAN_Init() leaves the handle
++	 * READY, HAL_FDCAN_Start() makes it BUSY and HAL_FDCAN_Stop() -- all that
++	 * can_disable() does -- puts it back to READY. can_init() never calls
++	 * HAL_FDCAN_Init(), so the only RESET state is "not opened since boot":
++	 * testing != RESET meant a channel that had been opened once read as open
++	 * forever, even after MODE_RESET. That silently broke every caller that
++	 * asks "is the channel closed right now?" (GET_STATE, the queue purge, the
++	 * BOOT0 option-byte write).
++	 */
++	return (state == HAL_FDCAN_STATE_BUSY);
++#else
+ 	return (state != HAL_FDCAN_STATE_RESET);
++#endif
+ }
+ 
+ bool can_is_rx_pending(can_data_t *hcan)
+@@ -253,9 +285,21 @@ bool can_send(can_data_t *hcan, struct gs_host_frame *frame)
+ 	if (frame->flags & GS_CAN_FLAG_FD) {
+ 		frame_header.FDFormat = FDCAN_FD_CAN;
+ 
+-		//if (frame->flags & GS_CAN_FLAG_BRS) {
++		/*
++		 * Honour what the host asked for. Upstream commented this test out
++		 * ("Sorting out heuristics ... is too hard; just always enable bitrate
++		 * switching") so every FD frame went on the wire with BRS set, no
++		 * matter what the host requested -- and the host could not tell,
++		 * because the local echo carries the host's own flags back, not what
++		 * was transmitted. That made it look like a peer's fault when a frame
++		 * sent without BRS was reported as having it.
++		 *
++		 * Init.FrameFormat stays FDCAN_FRAME_FD_BRS: that only permits BRS on
++		 * the channel, the per-frame header decides.
++		 */
++		if (frame->flags & GS_CAN_FLAG_BRS) {
+ 			frame_header.BitRateSwitch = FDCAN_BRS_ON;
+-		//}
++		}
+ 
+ 		if (frame->flags & GS_CAN_FLAG_ESI) {
+ 			frame_header.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+@@ -282,6 +326,53 @@ void can_get_error_status(can_data_t *hcan, FDCAN_ProtocolStatusTypeDef *status,
+ 	HAL_FDCAN_GetErrorCounters(&hcan->handle, counters);
+ }
+ 
++#if defined(CONFIG_SH_C31A_V15)
++/* Answer GS_USB_BREQ_GET_STATE (GS_CAN_FEATURE_GET_STATE, bit 13).
++ *
++ * The host uses this to poll bus state and the two error counters on demand,
++ * instead of waiting for the firmware to push an error frame on the next state
++ * transition. Without it a host that attaches to an already-bad bus sees
++ * nothing until something changes.
++ *
++ * Reading the FDCAN registers while the channel is closed is meaningless --
++ * HAL_FDCAN_GetProtocolStatus() reports whatever the peripheral last latched,
++ * and we have measured exactly that kind of garbage on another board
++ * (txerr=192 from a stopped channel). So a closed channel
++ * is reported as STOPPED with both counters zeroed, which is what the enum is
++ * for, rather than passing stale register contents up to the host.
++ *
++ * The ordering below is the same one can_parse_error_status() already uses for
++ * pushed error frames, so polled and pushed state cannot disagree.
++ */
++void can_get_device_state(can_data_t *hcan, struct gs_device_state *state)
++{
++	if (!can_is_enabled(hcan)) {
++		state->state = GS_CAN_STATE_STOPPED;
++		state->rxerr = 0;
++		state->txerr = 0;
++		return;
++	}
++
++	FDCAN_ProtocolStatusTypeDef status = {0};
++	FDCAN_ErrorCountersTypeDef counters = {0};
++
++	can_get_error_status(hcan, &status, &counters);
++
++	if (status.BusOff) {
++		state->state = GS_CAN_STATE_BUS_OFF;
++	} else if (status.ErrorPassive) {
++		state->state = GS_CAN_STATE_ERROR_PASSIVE;
++	} else if (status.Warning) {
++		state->state = GS_CAN_STATE_ERROR_WARNING;
++	} else {
++		state->state = GS_CAN_STATE_ERROR_ACTIVE;
++	}
++
++	state->rxerr = counters.RxErrorCnt;
++	state->txerr = counters.TxErrorCnt;
++}
++#endif
++
+ static bool status_is_active(FDCAN_ProtocolStatusTypeDef *status)
+ {
+ 	return !(status->BusOff || status->ErrorPassive);
+diff --git a/src/device/device_g4.c b/src/device/device_g4.c
+index 4c73f06..20ebaba 100644
+--- a/src/device/device_g4.c
++++ b/src/device/device_g4.c
+@@ -98,7 +98,30 @@ void device_sysclock_config(void) {
+ 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+ 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+ 	RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
++	/*
++	 * PLLN sets SYSCLK, and with APB1CLKDivider = DIV1 and
++	 * FdcanClockSelection = PCLK1 below it sets the FDCAN kernel clock too.
++	 *
++	 * HSI16 / PLLM(4) = 4 MHz into the PLL:
++	 *   PLLN 80 -> VCO 320 MHz -> PLLR /2 -> 160 MHz   (this fork's default)
++	 *   PLLN 85 -> VCO 340 MHz -> PLLR /2 -> 170 MHz   (what the SH-C31A ships with)
++	 *
++	 * 340 MHz is inside the G4 VCO range (96..344 MHz) and 170 MHz is the
++	 * part's maximum SYSCLK. Both prerequisites for running there are already
++	 * set above and below: PWR_REGULATOR_VOLTAGE_SCALE1_BOOST and
++	 * FLASH_LATENCY_8.
++	 *
++	 * This is guarded because device_g4.c is shared with BOARD_CANable_MKS2_Pro,
++	 * whose config.h still declares 160 MHz -- changing the PLL for everyone
++	 * would leave that board running at a speed it does not report, which is
++	 * exactly the bug being fixed here. CONFIG_CLK170_SH_C31A moves the clock
++	 * and the two constants in config.h together, or none of them.
++	 */
++#if defined(CONFIG_CLK170_SH_C31A)
++	RCC_OscInitStruct.PLL.PLLN = 85;
++#else
+ 	RCC_OscInitStruct.PLL.PLLN = 80;
++#endif
+ 	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+ 	RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
+ 	RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+diff --git a/src/dfu.c b/src/dfu.c
+index 7fae19a..b99a8bd 100644
+--- a/src/dfu.c
++++ b/src/dfu.c
+@@ -89,3 +89,108 @@ static void dfu_jump_to_bootloader(uint32_t sysmem_base)
+ 	{
+ 	}
+ }
++
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++
++#define DEVID_STM32G431        0x468
++// USB has to stay configured this long before the policy may switch the pin
++// off: a firmware that cannot even get there must never lock SW1 out.
++#define BOOT0_POLICY_DELAY_MS  2000
++
++static bool boot0_booted_enabled;
++static volatile int8_t boot0_pending = -1; // -1 none, 0 disable, 1 enable
++static bool boot0_window_open;             // host re-enabled the pin: the policy leaves it alone
++#if !defined(CONFIG_BOOT0_MANUAL_ONLY)
++static bool boot0_policy_done;
++static uint32_t boot0_configured_since;
++#endif
++
++bool boot0_pin_enabled(void)
++{
++	return (FLASH->OPTR & FLASH_OPTR_nSWBOOT0) != 0;
++}
++
++void boot0_latch_at_boot(void)
++{
++	boot0_booted_enabled = boot0_pin_enabled();
++}
++
++bool boot0_pin_enabled_at_boot(void)
++{
++	return boot0_booted_enabled;
++}
++
++void boot0_request(bool enable)
++{
++	boot0_pending = enable ? 1 : 0;
++}
++
++static bool boot0_write(bool enable)
++{
++	// OPTR is laid out differently on every series: only ever touch it on a G431
++	if (HAL_GetDEVID() != DEVID_STM32G431) {
++		return false;
++	}
++
++	FLASH_OBProgramInitTypeDef ob = {0};
++	ob.OptionType = OPTIONBYTE_USER;
++	ob.USERType   = OB_USER_nSWBOOT0 | OB_USER_nBOOT0 | OB_USER_nBOOT1;
++	ob.USERConfig = (enable ? OB_BOOT0_FROM_PIN : OB_BOOT0_FROM_OB) | OB_nBOOT0_SET | OB_BOOT1_SYSTEM;
++
++	// a stale error flag makes HAL_FLASHEx_OBProgram() fail (see ElmueSoft system.c)
++	__HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
++
++	bool ok = HAL_FLASH_Unlock() == HAL_OK && HAL_FLASH_OB_Unlock() == HAL_OK;
++	if (ok) {
++		ok = HAL_FLASHEx_OBProgram(&ob) == HAL_OK; // ~25 ms, the CPU stalls on flash meanwhile
++	}
++	HAL_FLASH_OB_Lock();
++	HAL_FLASH_Lock();
++
++	return ok && boot0_pin_enabled() == enable;
++}
++
++void boot0_service(bool usb_configured, bool can_open)
++{
++	// the write stalls the CPU for ~25 ms: never with a bus running
++	if (can_open) {
++		return;
++	}
++
++	int8_t pending = boot0_pending;
++	if (pending >= 0) {
++		boot0_pending = -1;
++		boot0_window_open = (pending == 1);
++		// always written, even when unchanged, so the host exercises the real path
++		boot0_write(pending == 1);
++		return;
++	}
++
++#if !defined(CONFIG_BOOT0_MANUAL_ONLY)
++	if (boot0_policy_done || boot0_window_open) {
++		return;
++	}
++	if (!usb_configured) {
++		boot0_configured_since = 0;
++		return;
++	}
++
++	uint32_t now = HAL_GetTick();
++	if (boot0_configured_since == 0) {
++		boot0_configured_since = now ? now : 1;
++		return;
++	}
++	if (now - boot0_configured_since < BOOT0_POLICY_DELAY_MS) {
++		return;
++	}
++
++	boot0_policy_done = true;
++	if (boot0_pin_enabled()) {
++		boot0_write(false);
++	}
++#else
++	(void)usb_configured;
++#endif
++}
++
++#endif
+diff --git a/src/main.c b/src/main.c
+index f76b41e..336aab2 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -55,6 +55,10 @@ int main(void)
+ {
+ 	can_data_t *channel = &hGS_CAN.channels[0];
+ 
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++	boot0_latch_at_boot();
++#endif
++
+ 	HAL_Init();
+ 	SystemClock_Config();
+ 
+@@ -109,6 +113,7 @@ int main(void)
+ 			restore_irq(was_irq_enabled);
+ 
+ 			if (can_send(channel, frame)) {
++#if !defined(CONFIG_SH_C31A_V15)
+ 				// Echo sent frame back to host
+ 				frame->flags &= ~(GS_CAN_FLAG_FD);
+ 				frame->reserved = 0x0;
+@@ -118,12 +123,71 @@ int main(void)
+ 				} else {
+ 					frame->classic_can_ts.timestamp_us = timer_get();
+ 				}
++#else
++				// Echo sent frame back to host.
++				//
++				// Upstream cleared GS_CAN_FLAG_FD first and then tested it, so
++				// the test was always false: an FD echo came back without its
++				// FD flag and with the timestamp written at the classic offset,
++				// on top of data[8..11] of the very frame being echoed.
++				// (Fixed in v1.5; v1.4 and older still behave like upstream.)
++				//
++				// The flag must now STAY set. The Linux gs_usb driver picks the
++				// timestamp slot from each echo's own GS_CAN_FLAG_FD
++				// (gs_usb_set_timestamp(), reached from gs_usb_get_echo_skb()):
++				// moving the timestamp to the FD slot while still clearing the
++				// flag would make it read data[8..11] as the timestamp -- worse
++				// than upstream, which at least put it where the kernel looks.
++				//
++				// Length is not affected either way: USBD_GS_CAN_SendFrame()
++				// sizes the echo from hcan->fd and hcan->timestamps_enabled
++				// alone (usbd_gs_can.c), never from frame->flags.
++				if (frame->flags & GS_CAN_FLAG_FD) {
++					frame->canfd_ts.timestamp_us = timer_get();
++				} else {
++					frame->classic_can_ts.timestamp_us = timer_get();
++				}
++
++				frame->reserved = 0x0;
++#endif
+ 
++#if defined(CONFIG_SH_C31A_V15)
++				// Decide where the object goes with interrupts off, re-checking
++				// the channel: MODE_RESET purges both lists from the USB
++				// interrupt, and this object was on neither list while
++				// can_send() ran. Queuing the echo after a purge would hand the
++				// NEXT session a stale echo.
++				bool irq = disable_irq();
++				if (can_is_enabled(channel)) {
++					list_add_tail(&frame_object->list, &hGS_CAN.list_to_host);
++				} else {
++					list_add_tail(&frame_object->list, &hGS_CAN.list_frame_pool);
++				}
++				restore_irq(irq);
++#else
+ 				list_add_tail_locked(&frame_object->list, &hGS_CAN.list_to_host);
++#endif
+ 
+ 				led_indicate_trx(&channel->leds, led_tx);
+ 			} else {
++#if defined(CONFIG_SH_C31A_V15)
++				// Same race on the failure path, and the one the reset-backlog
++				// probe actually caught (1 of 40 frames survived): the frame
++				// taken off list_from_host for this attempt was put back AFTER
++				// the purge had already emptied the list. A closed channel now
++				// gets its frame back in the pool, so nothing from an earlier
++				// session can go out on the next MODE_START -- and frames a host
++				// sends while the channel is closed are dropped, not hoarded.
++				bool irq = disable_irq();
++				if (can_is_enabled(channel)) {
++					list_add(&frame_object->list, &hGS_CAN.list_from_host);
++				} else {
++					list_add_tail(&frame_object->list, &hGS_CAN.list_frame_pool);
++				}
++				restore_irq(irq);
++#else
+ 				list_add_locked(&frame_object->list, &hGS_CAN.list_from_host);
++#endif
+ 			}
+ 		} else {
+ 			restore_irq(was_irq_enabled);
+@@ -198,6 +262,18 @@ int main(void)
+ 
+ 		led_update(&channel->leds);
+ 
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		boot0_service(hUSB.dev_state == USBD_STATE_CONFIGURED, can_is_enabled(channel));
++
++		if (USBD_GS_CAN_DfuDetachRequested(&hUSB) && !boot0_pin_enabled_at_boot()) {
++			// The chip ignores the pin until the next power-on, so a reset would
++			// only boot this firmware again. Open the window instead: the user
++			// powers the board up with SW1 on BOOT and gets the ROM bootloader.
++			hGS_CAN.dfu_detach_requested = false;
++			boot0_request(true);
++		}
++#endif
++
+ 		if (USBD_GS_CAN_DfuDetachRequested(&hUSB)) {
+ 			dfu_run_bootloader();
+ 		}
+diff --git a/src/usbd_desc.c b/src/usbd_desc.c
+index d5df5ba..59c9be7 100644
+--- a/src/usbd_desc.c
++++ b/src/usbd_desc.c
+@@ -66,8 +66,8 @@ static const uint8_t USBD_FS_DeviceDesc[USB_LEN_DEV_DESC] = {
+ 	HIBYTE(USBD_VID),
+ 	LOBYTE(USBD_PID_FS),        /* idProduct */
+ 	HIBYTE(USBD_PID_FS),
+-	0x00,                       /* bcdDevice rel. 0.00 */
+-	0x00,
++	LOBYTE(USBD_BCD_DEVICE),    /* bcdDevice -- see config.h, must not be 0 */
++	HIBYTE(USBD_BCD_DEVICE),
+ 	USBD_IDX_MFC_STR,           /* Index of manufacturer string */
+ 	USBD_IDX_PRODUCT_STR,       /* Index of product string */
+ 	USBD_IDX_SERIAL_STR,        /* Index of serial number string */
+diff --git a/src/usbd_gs_can.c b/src/usbd_gs_can.c
+index c1e0d1c..85f4aff 100644
+--- a/src/usbd_gs_can.c
++++ b/src/usbd_gs_can.c
+@@ -42,6 +42,28 @@ THE SOFTWARE.
+ #include "usbd_ioreq.h"
+ #include "util.h"
+ 
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++#include "dfu.h"
++
++/*
++ * Two vendor requests for the BOOT0 policy in dfu.c. Numbered and shaped like
++ * ElmueSoft's ELM_ReqSetPinStatus / ELM_ReqGetPinStatus so a host that already
++ * speaks those needs no second implementation -- but, unlike there, they do
++ * not need the ElmueSoft protocol switched on first. Both are per device.
++ */
++#define SH_BREQ_SET_PIN_STATUS 24 // OUT 12 bytes: u16 operation, u16 pin id, 8 reserved
++#define SH_BREQ_GET_PIN_STATUS 25 // IN 2 bytes, wValue = pin id
++
++struct sh_pin_status {
++	uint16_t operation;
++	uint16_t pin_id;
++	uint32_t reserved1;
++	uint32_t reserved2;
++} __packed;
++
++static uint16_t sh_pin_status_reply;
++#endif
++
+ static volatile bool is_usb_suspend_cb = false;
+ 
+ /* Configuration Descriptor */
+@@ -205,6 +227,23 @@ static const uint8_t USBD_MS_EXT_PROP_FEATURE_DESC[] = {
+ 	0x00, 0x00, 0x00, 0x00
+ };
+ 
++/*
++ * Offset of the '1' in the "{c1..." GUID string above, i.e. the single byte
++ * that tells the CAN interface's GUID apart from the DFU interface's one.
++ *
++ * Derived from the descriptor itself instead of hardcoded: the GUID string is
++ * the trailing dwPropertyDataLength (0x50) bytes, and the character in
++ * question is the 3rd one, i.e. byte 4 in UTF-16LE. Works out to 70 for the
++ * 0x92-byte descriptor above; if upstream ever adds a field to the header the
++ * offset follows it.
++ *
++ * Note this cannot be nailed down with a compile-time assertion on the array
++ * element: indexing a const array is not an integer constant expression, so
++ * such an assert would silently degrade instead of checking anything. What
++ * actually checks it is tools/verify-bin.py, run against the built image.
++ */
++#define MS_EXT_PROP_GUID_VARIANT_OFFSET (sizeof(USBD_MS_EXT_PROP_FEATURE_DESC) - 0x50 + 4)
++
+ // device info
+ static const struct gs_device_config USBD_GS_CAN_dconf = {
+ 	.icount = NUM_CAN_CHANNEL - 1,
+@@ -218,23 +257,75 @@ static const struct gs_device_bt_const USBD_GS_CAN_btconst = {
+ 		GS_CAN_FEATURE_LISTEN_ONLY |
+ 		GS_CAN_FEATURE_LOOP_BACK |
+ 		GS_CAN_FEATURE_ONE_SHOT |
++		/*
++		 * Advertise the timestamps this firmware already produces.
++		 *
++		 * The whole path is here and working -- timer_init() runs TIM2 at
++		 * 1 MHz, every RX and TX path stamps the frame, and the frame-length
++		 * logic below accounts for the extra 4 bytes. Only the feature bit was
++		 * missing, so no host ever asked and the capability was invisible.
++		 *
++		 * This matters beyond tidiness: the firmware the SH-C31A shipped with
++		 * did advertise it. Leaving it out would silently drop device-side
++		 * timestamps for anyone who relied on them.
++		 *
++		 * Measured before turning it on, by requesting the mode flag anyway
++		 * (usbd_gs_can.c honours it regardless of what is advertised): frames
++		 * grew from 20 to 24 bytes and the counter tracked an enforced 50 ms
++		 * send spacing to within 0.3%. See tools/probe_timestamps.py.
++		 */
++		GS_CAN_FEATURE_HW_TIMESTAMP |
+ 		GS_CAN_FEATURE_IDENTIFY |
+ 		GS_CAN_FEATURE_FD |
+ 		GS_CAN_FEATURE_BT_CONST_EXT |
+ 		GS_CAN_FEATURE_USER_ID |
++		/*
++		 * On-demand bus state and error counters (GS_USB_BREQ_GET_STATE).
++		 *
++		 * Without it the host only learns about the bus when the firmware
++		 * pushes an error frame, which happens on a state TRANSITION -- so a
++		 * host attaching to an already-degraded bus sees nothing until the
++		 * next change. The stock SH-C31A firmware did not advertise this
++		 * either, but the Elmue 2.5 firmware on the same hardware does.
++		 *
++		 * Only advertise what is implemented: see can_get_device_state().
++		 * A closed channel answers STOPPED rather than stale registers.
++		 * (v1.5 and later.)
++		 */
++#if defined(CONFIG_SH_C31A_V15)
++		GS_CAN_FEATURE_GET_STATE |
++#endif
+ 		GS_CAN_FEATURE_PAD_PKTS_TO_MAX_PKT_SIZE
+ #ifdef TERM_Pin
+ 		| GS_CAN_FEATURE_TERMINATION
+ #endif
+ 	,
++	/*
++	 * Nominal (arbitration) bit timing limits.
++	 *
++	 * These are the FDCAN hardware's, not upstream's bxCAN set of 16/8/4 and
++	 * prescaler 1024. Read off IS_FDCAN_NOMINAL_*() in stm32g4xx_hal_fdcan.h,
++	 * and identical to what the firmware this board shipped with advertises
++	 * (measured out of an archived flash image: 2..256 / 2..128 / 128 / 512).
++	 *
++	 * Upstream's numbers were wrong in both directions. Prescaler 1024 is more
++	 * than the 9-bit NBRP field can hold, so a host that believed it got a
++	 * silently different bit rate. And capping the segments at 16/8 makes a bit
++	 * at most 25 tq, which forces low bitrates onto a prescaler beyond its own
++	 * limit -- 10 kbit/s needs brp 680 that way, so it simply cannot be set.
++	 * With the real range a bit can be 385 tq and 10 kbit/s needs brp 50.
++	 *
++	 * The minimums are the shipping firmware's 2, not the HAL's 1: this is the
++	 * configuration that is known to work on this board.
++	 */
+ 	.fclk_can = CAN_CLOCK_SPEED,
+-	.tseg1_min = 1,
+-	.tseg1_max = 16,
+-	.tseg2_min = 1,
+-	.tseg2_max = 8,
+-	.sjw_max = 4,
++	.tseg1_min = 2,
++	.tseg1_max = 256,
++	.tseg2_min = 2,
++	.tseg2_max = 128,
++	.sjw_max = 128,
+ 	.brp_min = 1,
+-	.brp_max = 1024,
++	.brp_max = 512,
+ 	.brp_inc = 1,
+ };
+ 
+@@ -243,32 +334,78 @@ static struct gs_device_bt_const_extended USBD_GS_CAN_btconst_extended = {
+ 		GS_CAN_FEATURE_LISTEN_ONLY |
+ 		GS_CAN_FEATURE_LOOP_BACK |
+ 		GS_CAN_FEATURE_ONE_SHOT |
++		/*
++		 * Advertise the timestamps this firmware already produces.
++		 *
++		 * The whole path is here and working -- timer_init() runs TIM2 at
++		 * 1 MHz, every RX and TX path stamps the frame, and the frame-length
++		 * logic below accounts for the extra 4 bytes. Only the feature bit was
++		 * missing, so no host ever asked and the capability was invisible.
++		 *
++		 * This matters beyond tidiness: the firmware the SH-C31A shipped with
++		 * did advertise it. Leaving it out would silently drop device-side
++		 * timestamps for anyone who relied on them.
++		 *
++		 * Measured before turning it on, by requesting the mode flag anyway
++		 * (usbd_gs_can.c honours it regardless of what is advertised): frames
++		 * grew from 20 to 24 bytes and the counter tracked an enforced 50 ms
++		 * send spacing to within 0.3%. See tools/probe_timestamps.py.
++		 */
++		GS_CAN_FEATURE_HW_TIMESTAMP |
+ 		GS_CAN_FEATURE_IDENTIFY |
+ 		GS_CAN_FEATURE_FD |
+ 		GS_CAN_FEATURE_BT_CONST_EXT |
+ 		GS_CAN_FEATURE_USER_ID |
++		/*
++		 * On-demand bus state and error counters (GS_USB_BREQ_GET_STATE).
++		 *
++		 * Without it the host only learns about the bus when the firmware
++		 * pushes an error frame, which happens on a state TRANSITION -- so a
++		 * host attaching to an already-degraded bus sees nothing until the
++		 * next change. The stock SH-C31A firmware did not advertise this
++		 * either, but the Elmue 2.5 firmware on the same hardware does.
++		 *
++		 * Only advertise what is implemented: see can_get_device_state().
++		 * A closed channel answers STOPPED rather than stale registers.
++		 * (v1.5 and later.)
++		 */
++#if defined(CONFIG_SH_C31A_V15)
++		GS_CAN_FEATURE_GET_STATE |
++#endif
+ 		GS_CAN_FEATURE_PAD_PKTS_TO_MAX_PKT_SIZE
+ #ifdef TERM_Pin
+ 		| GS_CAN_FEATURE_TERMINATION
+ #endif
+ 	,
++	/* nominal phase: same as gs_device_bt_const above, see the note there */
+ 	.fclk_can = CAN_CLOCK_SPEED,
+-	.tseg1_min = 1,
+-	.tseg1_max = 16,
+-	.tseg2_min = 1,
+-	.tseg2_max = 8,
+-	.sjw_max = 4,
++	.tseg1_min = 2,
++	.tseg1_max = 256,
++	.tseg2_min = 2,
++	.tseg2_max = 128,
++	.sjw_max = 128,
+ 	.brp_min = 1,
+-	.brp_max = 1024,
++	.brp_max = 512,
+ 	.brp_inc = 1,
+ 
++	/*
++	 * Data phase. The registers are much narrower than the nominal ones --
++	 * DTSEG1 is 5 bits, DTSEG2 and DSJW are 4, DBRP is 5 -- see
++	 * IS_FDCAN_DATA_*() in stm32g4xx_hal_fdcan.h.
++	 *
++	 * There is no shipping-firmware reference for these: the firmware this
++	 * board came with does not advertise CAN FD at all, so its bt_const has no
++	 * data phase. These are the hardware's limits and nothing else.
++	 *
++	 * Upstream's .dbrp_max of 1024 was 32 times what DBRP can hold.
++	 */
+ 	.dtseg1_min = 1,
+-	.dtseg1_max = 16,
++	.dtseg1_max = 32,
+ 	.dtseg2_min = 1,
+-	.dtseg2_max = 8,
+-	.dsjw_max = 4,
++	.dtseg2_max = 16,
++	.dsjw_max = 16,
+ 	.dbrp_min = 1,
+-	.dbrp_max = 1024,
++	.dbrp_max = 32,
+ 	.dbrp_inc = 1,
+ };
+ 
+@@ -289,6 +426,36 @@ static inline uint8_t USBD_GS_CAN_PrepareReceive(USBD_HandleTypeDef *pdev)
+ 	return USBD_LL_PrepareReceive(pdev, GSUSB_ENDPOINT_OUT, data, sizeof(struct gs_host_frame));
+ }
+ 
++#if defined(CONFIG_SH_C31A_V15)
++/* Give every queued frame object back to the pool.
++ *
++ * Without this, GS_CAN_MODE_RESET is not a clean reset: frames the host had
++ * already handed over but the bus never accepted stay on list_from_host, the
++ * main loop keeps putting them back (it does not test whether the channel is
++ * open), and the next GS_CAN_MODE_START puts them on the wire -- so a fresh
++ * session can open with traffic from the previous one. Upstream candleLight_fw
++ * purges both lists in can_disable(); this fork carried neither call.
++ * (v1.5 and later.)
++ *
++ * NUM_CAN_CHANNEL is 1 here, so every object on either list belongs to the one
++ * channel and the whole list can be spliced back without walking it. Upstream
++ * needs the per-channel walk only because it supports multi-channel boards.
++ *
++ * hcan->from_host_buf is deliberately NOT touched: it holds the EMPTY object
++ * the USB layer is about to receive into, not a queued frame. Returning it to
++ * the pool would leave the OUT endpoint without a landing buffer.
++ */
++static void usbd_gs_can_purge_queues(USBD_GS_CAN_HandleTypeDef *hcan)
++{
++	bool was_irq_enabled = disable_irq();
++
++	list_splice_tail_init(&hcan->list_from_host, &hcan->list_frame_pool);
++	list_splice_tail_init(&hcan->list_to_host, &hcan->list_frame_pool);
++
++	restore_irq(was_irq_enabled);
++}
++#endif
++
+ static uint8_t USBD_GS_CAN_Start(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
+ {
+ 	UNUSED(cfgidx);
+@@ -352,6 +519,9 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ {
+ 	USBD_GS_CAN_HandleTypeDef *hcan = (USBD_GS_CAN_HandleTypeDef*) pdev->pClassData;
+ 	struct gs_device_termination_state term_state;
++#if defined(CONFIG_SH_C31A_V15)
++	struct gs_device_state dev_state;
++#endif
+ 	can_data_t *channel;
+ 	const void *src = NULL;
+ 	size_t len;
+@@ -367,6 +537,10 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ 	 *
+ 	 */
+ 	if (!(req->bRequest == GS_USB_BREQ_HOST_FORMAT ||
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		  req->bRequest == SH_BREQ_SET_PIN_STATUS ||
++		  req->bRequest == SH_BREQ_GET_PIN_STATUS ||
++#endif
+ 		  req->bRequest == GS_USB_BREQ_DEVICE_CONFIG)) {
+ 		channel = USBD_GS_CAN_GetChannel(hcan, req->wValue);
+ 		if (!channel) {
+@@ -379,6 +553,22 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ 		case GS_USB_BREQ_HOST_FORMAT:
+ 			len = sizeof(struct gs_host_config);
+ 			break;
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		case SH_BREQ_SET_PIN_STATUS:
++			len = sizeof(struct sh_pin_status);
++			break;
++		case SH_BREQ_GET_PIN_STATUS:
++			if (req->wValue != BOOT0_PINID) {
++				goto out_fail;
++			}
++			sh_pin_status_reply = boot0_pin_enabled() ? BOOT0_PINST_ENABLED : 0;
++			if (boot0_pin_enabled() != boot0_pin_enabled_at_boot()) {
++				sh_pin_status_reply |= BOOT0_PINST_PENDING;
++			}
++			src = &sh_pin_status_reply;
++			len = sizeof(sh_pin_status_reply);
++			break;
++#endif
+ 		case GS_USB_BREQ_BITTIMING:
+ 		case GS_USB_BREQ_DATA_BITTIMING:
+ 			len = sizeof(struct gs_device_bittiming);
+@@ -386,6 +576,13 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ 		case GS_USB_BREQ_MODE:
+ 			len = sizeof(struct gs_device_mode);
+ 			break;
++#if defined(CONFIG_SH_C31A_V15)
++		case GS_USB_BREQ_GET_STATE:
++			can_get_device_state(channel, &dev_state);
++			src = &dev_state;
++			len = sizeof(dev_state);
++			break;
++#endif
+ 		case GS_USB_BREQ_BT_CONST:
+ 			src = &USBD_GS_CAN_btconst;
+ 			len = sizeof(USBD_GS_CAN_btconst);
+@@ -440,6 +637,9 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ 		case GS_USB_BREQ_MODE:
+ 		case GS_USB_BREQ_IDENTIFY:
+ 		case GS_USB_BREQ_SET_TERMINATION:
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		case SH_BREQ_SET_PIN_STATUS:
++#endif
+ 			if (req->wLength > sizeof(hcan->ep0_buf)) {
+ 				goto out_fail;
+ 			}
+@@ -449,11 +649,17 @@ static uint8_t USBD_GS_CAN_Config_Request(USBD_HandleTypeDef *pdev, USBD_SetupRe
+ 			break;
+ 
+ 		// Device -> Host
++#if defined(CONFIG_SH_C31A_V15)
++		case GS_USB_BREQ_GET_STATE:
++#endif
+ 		case GS_USB_BREQ_BT_CONST:
+ 		case GS_USB_BREQ_BT_CONST_EXT:
+ 		case GS_USB_BREQ_DEVICE_CONFIG:
+ 		case GS_USB_BREQ_TIMESTAMP:
+ 		case GS_USB_BREQ_GET_TERMINATION:
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		case SH_BREQ_GET_PIN_STATUS:
++#endif
+ 			USBD_CtlSendData(pdev, (uint8_t *)src, len);
+ 			break;
+ 		default:
+@@ -530,6 +736,9 @@ static uint8_t USBD_GS_CAN_EP0_RxReady(USBD_HandleTypeDef *pdev) {
+ 	 * USBD_GS_CAN_Config_Request() already.
+ 	 */
+ 	if (!(req->bRequest == GS_USB_BREQ_HOST_FORMAT ||
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		  req->bRequest == SH_BREQ_SET_PIN_STATUS ||
++#endif
+ 		  req->bRequest == GS_USB_BREQ_DEVICE_CONFIG))
+ 		channel = USBD_GS_CAN_GetChannel(hcan, req->wValue);
+ 
+@@ -573,6 +782,9 @@ static uint8_t USBD_GS_CAN_EP0_RxReady(USBD_HandleTypeDef *pdev) {
+ 
+ 			if (mode->mode == GS_CAN_MODE_RESET) {
+ 				can_disable(channel);
++#if defined(CONFIG_SH_C31A_V15)
++				usbd_gs_can_purge_queues(hcan);
++#endif
+ 				led_set_mode(&channel->leds, led_mode_off);
+ 			} else if (mode->mode == GS_CAN_MODE_START) {
+ 				hcan->timestamps_enabled = (mode->flags & GS_CAN_MODE_HW_TIMESTAMP) != 0;
+@@ -614,6 +826,22 @@ static uint8_t USBD_GS_CAN_EP0_RxReady(USBD_HandleTypeDef *pdev) {
+ 			}
+ 			break;
+ 		}
++#if defined(CONFIG_BOOT0_DEFAULT_OFF_SH_C31A)
++		case SH_BREQ_SET_PIN_STATUS: {
++			// USB interrupt context: only queue it, the main loop does the flash write.
++			// Anything but these two exact requests is ignored -- the host reads the
++			// result back with SH_BREQ_GET_PIN_STATUS.
++			struct sh_pin_status *ps = (struct sh_pin_status *)hcan->ep0_buf;
++			if (ps->pin_id == BOOT0_PINID) {
++				if (ps->operation == BOOT0_PINOP_ENABLE) {
++					boot0_request(true);
++				} else if (ps->operation == BOOT0_PINOP_DISABLE) {
++					boot0_request(false);
++				}
++			}
++			break;
++		}
++#endif
+ 		default:
+ 			break;
+ 	}
+@@ -636,26 +864,54 @@ static uint8_t USBD_GS_CAN_DataOut(USBD_HandleTypeDef *pdev, uint8_t epnum) {
+ 
+ 	(void)epnum;
+ 	bool was_irq_enabled = disable_irq();
+-	// Enqueue the frame we just received.
+-	list_add_tail(&hcan->from_host_buf->list, &hcan->list_from_host);
+-
+-	// Grab a buffer for the next frame from the pool.
+-	hcan->from_host_buf = list_first_entry_or_null(&hcan->list_frame_pool,
+-												   struct gs_host_frame_object,
+-												   list);
+-	if (hcan->from_host_buf) {
+-		list_del(&hcan->from_host_buf->list);
+-		restore_irq(was_irq_enabled);
+-
+-		// We got a buffer! Get ready to receive from the USB host into it.
+-		USBD_GS_CAN_PrepareReceive(pdev);
+-	} else {
+-		restore_irq(was_irq_enabled);
+ 
+-		// gs_can has no way to drop packets. If we just drop this one, gs_can
+-		// will fill up its queue of packets awaiting ACKs and then hang. Instead,
+-		// wait to call PrepareReceive until we have a frame to receive into.
++	/*
++	 * Take the next buffer FIRST, and only hand the current one over once we
++	 * actually have a replacement. If the pool is empty we drop the frame we
++	 * just received and receive into the same buffer again.
++	 *
++	 * The order matters, and the original order is why this device wedged.
++	 * Upstream enqueued from_host_buf unconditionally, then set it from the
++	 * pool -- which leaves it NULL when the pool is empty -- and then skipped
++	 * PrepareReceive() entirely, deliberately, to NAK the host instead of
++	 * dropping frames:
++	 *
++	 *   // gs_can has no way to drop packets. If we just drop this one, gs_can
++	 *   // will fill up its queue of packets awaiting ACKs and then hang.
++	 *
++	 * On a real host that is ordinary flow control. On Windows/WinUSB it is
++	 * not: leaving the OUT endpoint un-armed through a long stall ends with a
++	 * halted endpoint, and nobody sends CLEAR_FEATURE(ENDPOINT_HALT), so it
++	 * never comes back -- only a physical replug does. Measured 2026-08-26: a
++	 * plain python-can app wedged an internal pre-release build after 1047
++	 * frames at 500 kbit/s, while the factory firmware survived 20000 on the
++	 * same board.
++	 *
++	 * This is what the factory firmware does (normaldotcom/candleLight_fw
++	 * @ba6b1dd, BOARD_canable2): drop, and keep the endpoint armed. It costs
++	 * silent frame loss under overload, which is exactly the behaviour the
++	 * boards shipped with.
++	 *
++	 * NOTE the mainline fix is a different one -- candle-usb/candleLight_fw
++	 * @64dc8dc arms the endpoint and then forces USB_EP_RX_NAK, so it does not
++	 * drop. That relies on its multi-buffer from_host_buf[] array plus
++	 * Prefill_RX_Buffers keeping entry [0] valid; this fork has a single
++	 * pointer, so copying those two lines here would dereference NULL.
++	 */
++	struct gs_host_frame_object *next = list_first_entry_or_null(&hcan->list_frame_pool,
++																  struct gs_host_frame_object,
++																  list);
++	if (next) {
++		list_del(&next->list);
++		// Enqueue the frame we just received, now that we can replace it.
++		list_add_tail(&hcan->from_host_buf->list, &hcan->list_from_host);
++		hcan->from_host_buf = next;
+ 	}
++	restore_irq(was_irq_enabled);
++
++	// Always re-arm: from_host_buf is never NULL, so this is always valid.
++	USBD_GS_CAN_PrepareReceive(pdev);
++
+ 	return USBD_OK;
+ }
+ 
+@@ -726,12 +982,30 @@ bool USBD_GS_CAN_CustomDeviceRequest(USBD_HandleTypeDef *pdev, USBD_SetupReqType
+ 				return true;
+ 
+ 			case 0x0005:
+-				if (req->wValue==0) { // only return our GUID for interface #0
+-					memcpy(USBD_DescBuf, USBD_MS_EXT_PROP_FEATURE_DESC, sizeof(USBD_MS_EXT_PROP_FEATURE_DESC));
+-					USBD_CtlSendData(pdev, USBD_DescBuf, MIN(sizeof(USBD_MS_EXT_PROP_FEATURE_DESC), req->wLength));
+-					return true;
++				/*
++				 * Every interface needs a GUID of its own. Returning one only
++				 * for interface #0 (as this driver used to do) leaves the DFU
++				 * interface without a device interface, and winusb.sys does
++				 * not create one for an interface that has no GUID -- so the
++				 * DFU interface binds a driver but cannot be opened by any
++				 * program.
++				 *
++				 * Same table for both, with the one distinguishing character
++				 * patched in for the DFU interface:
++				 *   interface 0 (CAN): {c15b4308-04d3-11e6-b3ea-6057189e6443}
++				 *   interface 1 (DFU): {c25b4308-04d3-11e6-b3ea-6057189e6443}
++				 *
++				 * The CAN GUID must stay as-is: it is the well-known
++				 * candleLight device interface GUID that host software looks
++				 * the device up by. The DFU one matches what the CANable 2.5
++				 * firmware already uses for its own upgrade interface.
++				 */
++				memcpy(USBD_DescBuf, USBD_MS_EXT_PROP_FEATURE_DESC, sizeof(USBD_MS_EXT_PROP_FEATURE_DESC));
++				if (req->wValue == 1) { // DFU interface
++					USBD_DescBuf[MS_EXT_PROP_GUID_VARIANT_OFFSET] = '2';
+ 				}
+-				break;
++				USBD_CtlSendData(pdev, USBD_DescBuf, MIN(sizeof(USBD_MS_EXT_PROP_FEATURE_DESC), req->wLength));
++				return true;
+ 
+ 		}
+ 
