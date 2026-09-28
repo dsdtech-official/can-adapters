@@ -41,8 +41,8 @@ and if you picked the wrong one it says so and stops.
 
 **The current firmware is a free download, and the upgrade is reversible** — the bootloader
 lives in ROM and cannot be overwritten. → [`../firmware/`](../firmware/) for the procedure,
-or straight to the **[firmware v1.4
-release](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.4)**
+or straight to the **[firmware v1.5
+release](https://github.com/dsdtech-official/can-adapters/releases/tag/SH-C31A/fw-v1.5)**
 — one build serves both boards in this pair, so the tag carries only one of the two names.
 
 **What you gain:** `listen-only` that actually silences the adapter, echoes you can trust,
