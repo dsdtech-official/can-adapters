@@ -7,6 +7,7 @@ own folder.
 
 | File | Answers |
 |---|---|
+| [`software.md`](software.md) | Get diCAN for Windows or macOS; match your adapter and firmware to the available features |
 | `identify-firmware.md` | Which firmware is on my adapter, and how do I change it? |
 | `termination.md` | When must the 120 Ω terminator be switched off? *(the #1 support question)* |
 | `leds.md` | What the three lights mean, and why the green ones are dark |

@@ -65,7 +65,7 @@ the factory** — and the firmware can be changed on any of them.
 
 | | **SH-C31A** | **SH-C31B** | **SH-C31G** |
 |---|---|---|---|
-| Build | our own gs_usb build, `v1.4` | **ElmueSoft Slcan 2.5**, `Multiboard` | our own gs_usb build, `v1.4` |
+| Build | our own gs_usb build, `v1.5` on new production units; older stock may differ | **ElmueSoft Slcan 2.5**, `Multiboard` | our own gs_usb build; existing units may have `v1.4` or older, and [v1.5 is recommended](../SH-C31G/firmware/) |
 | Written by | **us** | **a third party** — ElmueSoft, MIT licence | **us** |
 | Host interface | raw USB (gs_usb / WinUSB) | **CDC virtual serial port** | raw USB (gs_usb / WinUSB) |
 | USB `VID:PID` | `1D50:606F` | **`16D0:117E`** | `1D50:606F` |
@@ -88,9 +88,17 @@ the factory** — and the firmware can be changed on any of them.
 | You work on **Linux with SocketCAN**, or use cangaroo, `can-utils`, `python-can` over gs_usb | **SH-C31A** |
 | Your CAN side must be **electrically separated** from the PC | **SH-C31G** |
 
-> **All three can be reflashed either way, free, over USB.** The bootloader lives in ROM
-> and cannot be erased, so an adapter bought as one can be made into the other →
+> **The firmware can be changed over USB, but the steps depend on the firmware currently
+> installed.** Disabling BOOT0 means the switch alone will not enter DFU; confirm the
+> update and recovery procedure before flashing →
 > [`docs/other-firmware.md`](../docs/other-firmware.md)
+
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS with this adapter's factory
+ElmueSoft Slcan 2.5 firmware. It connects through the serial port; the guide has
+downloads and first-connection steps. Check the installed firmware if the adapter
+has been reflashed.
 
 ## Before you put it on a bus you care about
 

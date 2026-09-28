@@ -33,14 +33,22 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 5 V from USB, and the transceiver runs from it. Pin 4 of the terminal carries that isolated
 5 V, so it can also feed a small load on the bus side — it is an output, not an input.
 
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS to view, send and record CAN
+traffic with this adapter. CAN FD availability depends on the firmware installed;
+the guide shows how to check it.
+
 ## Start here
 
 1. **[Manual](manual/)** — wiring, LEDs, first connection
 2. **Check the 120 Ω terminator.** Switch it **off** when the bus already has two, which a
    vehicle bus does → [`docs/termination.md`](../docs/termination.md)
-3. **The green LEDs stay dark until software opens the channel.** That is normal →
+3. **Check your firmware.** We recommend the shared **v1.5** build for SH-C31G owners;
+   see the [firmware download and update steps](firmware/).
+4. **The green LEDs stay dark until software opens the channel.** That is normal →
    [`docs/leds.md`](../docs/leds.md)
-4. **[Examples](examples/)** — read the bus, send a frame, send an FD frame
+5. **[Examples](examples/)** — read the bus, send a frame, send an FD frame
 
 ## In this folder
 

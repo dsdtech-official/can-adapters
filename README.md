@@ -30,6 +30,18 @@ isolated supply — nothing external needed. _More models are being added._
 > fitted at the factory: the SH-C31A speaks **gs_usb**, the SH-C31B appears as an ordinary
 > **serial port**. Either can be reflashed into the other → [SH-C31B](SH-C31B/)
 
+## Software: start with diCAN
+
+**[diCAN](https://github.com/dsdtech-official/diCAN) is DSD TECH's official,
+free and open-source CAN software for Windows and macOS.** It supports all DSD TECH
+USB-to-CAN adapters released to date, including every model listed above. View and
+send CAN traffic, record sessions and export the results.
+
+**[Get diCAN and check your adapter's firmware](docs/software.md).** Available CAN
+modes depend on the hardware and installed firmware; diCAN does not add CAN FD to
+an adapter that does not support it. The ready-to-run macOS download currently
+supports Apple silicon; see the guide for platform details.
+
 ## What is in each model folder
 
 | Folder | What is in it |
