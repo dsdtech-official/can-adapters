@@ -28,6 +28,11 @@ One build covers **SH-C30A, SH-C30G and SH-C30L**. Everything the
 [SH-C30A firmware page](../SH-C30A/firmware/) says applies here — see
 [`firmware/`](firmware/) for the short form.
 
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS to view, send and record CAN
+traffic with this adapter. The guide has downloads and first-connection steps.
+
 ## Start here
 
 1. **[Manual](manual/)** — wiring, LEDs, first connection

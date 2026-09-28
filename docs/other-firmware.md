@@ -207,16 +207,21 @@ not affected either way.
 
 ## Flashing
 
-Same procedure as our own firmware — USB DFU to the STM32 system bootloader (`0483:DF11`).
-The **BOOT** position of the on-board switch puts the MCU there. A USB cable is all you
-need.
+These files are flashed through the STM32 system bootloader (`0483:DF11`), but **how you
+enter DFU depends on the firmware currently on your adapter**. On SH-C31A or SH-C31G
+running our v1.5, first unlock BOOT0 as described in the
+[SH-C31A flashing steps](../SH-C31A/firmware/#flashing). On an as-shipped SH-C31B,
+BOOT0 is disabled, so the switch alone will not enter DFU. Check its firmware and the
+author's update instructions before starting. Do not erase the running firmware until
+you have confirmed the adapter is in ROM DFU mode.
 
 ### Going back
 
-**Nothing here is one-way.** Our own build is on the model's firmware page
+Our own build is on the model's firmware page
 ([SH-C31A](../SH-C31A/firmware/README.md#download) ·
-[SH-C31G](../SH-C31G/firmware/README.md)) and flashes exactly the same way. The bootloader
-lives in ROM and is not touched by any of this.
+[SH-C31G](../SH-C31G/firmware/README.md)). The bootloader lives in ROM, but a disabled
+BOOT0 pin means the switch alone cannot reach it. Follow your model's unlock steps
+before changing firmware, and verify the new firmware's BOOT0 behavior before flashing.
 
 ## What we support, and what we do not
 

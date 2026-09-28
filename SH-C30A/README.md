@@ -20,6 +20,11 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 | USB | USB 2.0 Full Speed, USB-A plug |
 | CAN | 3.81 mm terminal — CAN_H / CAN_L / GND |
 
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS to view, send and record CAN
+traffic with this adapter. The guide has downloads and first-connection steps.
+
 ## Start here
 
 1. **[Manual](manual/)** — wiring, LEDs, first connection

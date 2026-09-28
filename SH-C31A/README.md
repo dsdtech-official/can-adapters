@@ -29,6 +29,12 @@ lineage and attribution: [`THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md).
 > open 500 kbit/s and 1 Mbit/s — that is a restriction inside that library.
 > [`firmware/`](firmware/) has the measurements.
 
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS to view, send and record CAN
+traffic with this adapter. CAN FD availability depends on the firmware installed;
+the guide shows how to check it.
+
 ## Start here
 
 1. **[Manual](manual/)** — wiring, LEDs, first connection

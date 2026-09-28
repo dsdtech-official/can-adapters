@@ -27,6 +27,11 @@ from the USB side. Part of the **CANable** family: lineage and attribution in
 5 V from USB, and the transceiver runs from it. Pin 4 of the terminal carries that isolated
 5 V, so it can also feed a small load on the bus side — it is an output, not an input.
 
+## Software
+
+Use **[diCAN](../docs/software.md)** on Windows or macOS to view, send and record CAN
+traffic with this adapter. The guide has downloads and first-connection steps.
+
 ## Start here
 
 1. **[Manual](manual/)** — wiring, LEDs, first connection
