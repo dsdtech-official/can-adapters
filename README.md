@@ -39,8 +39,10 @@ send CAN traffic, record sessions and export the results.
 
 **[Get diCAN and check your adapter's firmware](docs/software.md).** Available CAN
 modes depend on the hardware and installed firmware; diCAN does not add CAN FD to
-an adapter that does not support it. The ready-to-run macOS download currently
-supports Apple silicon; see the guide for platform details.
+an adapter that does not support it. For Apple silicon Macs running macOS 12 or
+later, diCAN is available from the
+[Mac App Store](https://apps.apple.com/us/app/dican/id6815654112) or as a direct
+download; see the guide for platform details.
 
 ## What is in each model folder
 

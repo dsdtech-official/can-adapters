@@ -13,11 +13,11 @@ to try diCAN.
 | Your computer | Where to get it |
 |---|---|
 | Windows 10 version 1809 or later | [Microsoft Store](https://apps.microsoft.com/detail/9N16CGHG2L72) or [direct downloads](https://github.com/dsdtech-official/diCAN/releases/latest) for x64, x86 and ARM64 |
-| macOS 12 or later, Apple silicon | [Direct download](https://github.com/dsdtech-official/diCAN/releases/latest) |
+| macOS 12 or later, Apple silicon | [Mac App Store](https://apps.apple.com/us/app/dican/id6815654112) or [direct download](https://github.com/dsdtech-official/diCAN/releases/latest) |
 | macOS on Intel | diCAN supports Intel Macs, but a ready-to-run Intel download is not currently provided. See its [source and build instructions](https://github.com/dsdtech-official/diCAN#building-from-source) |
 | Linux | diCAN is not available. See [which firmware is on your adapter](identify-firmware.md) for the Linux interfaces and other software |
 
-For installation details, any store availability updates and the current platform list, see the
+For installation details and the current platform list, see the
 [diCAN README](https://github.com/dsdtech-official/diCAN#downloads).
 
 ## Which adapter do you have?
