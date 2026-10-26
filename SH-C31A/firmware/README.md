@@ -7,10 +7,12 @@
 **Our own gs_usb build.** The current release is **`v1.5`** — see **[Download](#download)**
 below and **[What changed in v1.5](#what-changed-in-v15)**.
 
-**Units produced from September 2026 ship with v1.4.** Anything made before that carries
-the original upstream canable2 build, and so does older stock still moving through
-distribution. **Those units work, and you can keep using them** — but that build has
-three limitations worth knowing about, and one of them matters on a live bus:
+**Current production SH-C31A units ship with v1.5.** Earlier units and stock already
+in distribution may carry v1.4 or the original upstream canable2 build. Check the
+USB device revision below to identify yours.
+
+**The following three limitations apply only to the original upstream canable2
+build, not to our v1.4 or v1.5 builds:**
 
 - 🔴 **It reports `listen-only` support and does not honour it.** Ask it to stay silent and
   it still transmits and still acknowledges, with no error and no warning. If you need a
@@ -78,18 +80,26 @@ ip -details link show can0 | grep -E 'bitrate|dbitrate'
 **Read it back. Every time.** A script that trusts the exit code will run a bus at the
 wrong speed and look fine doing it.
 
-## How the host behaves under a flood
+## Buffer limits under sustained traffic
 
-Worth knowing because it looks like a firmware fault and is not:
+Under sustained traffic, frame delivery depends on the offered load, the host's
+send/receive handling, and the firmware's buffering. These gs_usb builds use a
+finite frame pool shared by CAN transmit, receive and transmit-echo traffic.
+When that pool is exhausted, a host-to-CAN frame can be discarded in firmware
+without an error or transmit echo. A successful USB write alone does not prove
+that the frame was transmitted on the CAN bus.
 
-| Host | Frames lost |
-|---|---|
-| **Linux SocketCAN** | **0 %** — the kernel waits for each USB transfer to complete rather than pushing blindly |
-| **Windows, python-can, an application that reads while it writes** | ~5 %, when transmitting faster than the bus can carry |
-| **Windows, an application that never reads** | ~99 % — the internal frame pool fills and everything after it is dropped |
+The previously published Windows/Linux loss percentages came from specific
+`v1.4` stress tests using different host paths and loads. They were not
+controlled comparisons of the operating systems or normal loss rates for
+either platform, and must not be treated as measurements of `v1.5`.
+No platform-wide or `v1.5` loss rate is claimed here.
 
-The last row is a misuse, not a rate: an application that transmits and never calls
-`recv` will lose almost everything. Read while you write.
+Keep the receive path active while sending, pace traffic to what the bus and
+adapter can handle, and check the send/error feedback your host interface
+actually provides. Verify delivery with independent CAN observations or
+application-protocol replies when required. Reading and pacing help manage
+buffer pressure; they do not guarantee loss-free operation.
 
 ## What changed in v1.5
 
