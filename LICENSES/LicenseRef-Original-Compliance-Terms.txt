@@ -1,0 +1,28 @@
+Original compliance document terms
+
+This reference records conditions printed in the original laboratory PDFs
+under docs/compliance/. It is not an additional licence grant, an assertion
+of copyright ownership, or a change to those documents. The original PDFs
+remain authoritative. No CC BY-SA, hardware or software licence elsewhere
+in this repository is applied to these original attestations.
+
+CE (EMC) attestation AGC09162260901E2 - printed conditions:
+
+This Attestation of Conformity is recognized by Attestation of Global Compliance (Shenzhen) Co., Ltd. and made in accordance with
+the EMC Directive2014/30/EU. The attestation doesn't imply assessment of the production. The Applicant of the attestation is
+authorized to use this attestation in connection with EC declaration of conformity to the Directive. The attestation is only applicable to
+the equipments described above. This attestation shall not be re-produced except in full without the written approval of Attestation of
+Global Compliance (Shenzhen) Co., Ltd.
+Note: This attestation is part of the full test report(s) and should be used in conjunction with it.
+
+RoHS attestation AGC09162260901-C001 - printed conditions:
+
+The attestation is only applicable to the above product submitted by applicant. It doesn't imply assessment of the whole
+production. The applicant is authorized to use this attestation in connection with attestation of conformity to Directive
+2011/65/EU & (EU) 2015/863. This attestation may not be partially reproduced without the approval of Attestation of
+Global Compliance (Shenzhen) Std & Tech Co., Ltd.
+Note: This declaration is part of the full test report(s) and should be used in conjunction with it, and if the report(s) is invalid,
+then the declaration is invalid.
+
+Line wrapping and typographic apostrophes above are normalized for plain text;
+this transcription does not replace the original PDF wording or layout.

@@ -143,3 +143,14 @@ which is what ours are.
 **DSD TECH** is our trademark and is not licensed by this repository. **CANable**,
 **candleLight**, **STM32** and other names are the marks of their respective owners and are
 used here only to identify the projects and parts described above.
+
+
+## 4. Original laboratory attestations
+
+The CE (EMC) and RoHS PDFs under [docs/compliance/](docs/compliance/) are
+original laboratory documents supplied for the listed DSD TECH products.
+The issuing organizations and conditions are identified in the PDFs; the
+files are reproduced complete and unchanged. No additional open licence or
+copyright ownership is asserted for them. See the
+[original document terms](LICENSES/LicenseRef-Original-Compliance-Terms.txt)
+and [licensing scope](LICENSE.md#original-compliance-documents).

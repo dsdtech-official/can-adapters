@@ -54,6 +54,16 @@ traffic with this adapter. The guide has downloads and first-connection steps.
 
 Firmware images are attached to [Releases](../../../releases), not stored in this folder.
 
+## Compliance documents
+
+- [CE (EMC) attestation](../docs/compliance/ce-emc-AGC09162260901E2.pdf)
+- [RoHS attestation](../docs/compliance/rohs-AGC09162260901-C001.pdf)
+
+See the [document index](../docs/compliance/) for registration numbers,
+issue dates, model coverage and the original PDF terms. These laboratory
+PDFs retain their own conditions; the documentation licence below does not
+apply to them.
+
 ## Licence
 
 Hardware design files: **CERN-OHL-S-2.0** · Documentation: **CC-BY-SA-4.0** ·

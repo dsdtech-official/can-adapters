@@ -10,13 +10,23 @@ specification, so the licence of any single file can be read off that file.
 | Material | Licence | Full text |
 |---|---|---|
 | Hardware design files — schematics, board files, BOMs | **CERN-OHL-S-2.0** | [`LICENSES/CERN-OHL-S-2.0.txt`](LICENSES/CERN-OHL-S-2.0.txt) |
-| Documentation — manuals, datasheets, READMEs | **CC-BY-SA-4.0** | [`LICENSES/CC-BY-SA-4.0.txt`](LICENSES/CC-BY-SA-4.0.txt) |
+| Documentation — manuals, datasheets, READMEs (except original laboratory PDFs) | **CC-BY-SA-4.0** | [`LICENSES/CC-BY-SA-4.0.txt`](LICENSES/CC-BY-SA-4.0.txt) |
+| Original laboratory attestations | **Original document terms; no additional licence grant** | [`LICENSES/LicenseRef-Original-Compliance-Terms.txt`](LICENSES/LicenseRef-Original-Compliance-Terms.txt) |
 | Example code | **BSD-3-Clause** | [`LICENSES/BSD-3-Clause.txt`](LICENSES/BSD-3-Clause.txt) |
 | Firmware images we build and publish | **MIT** *(candleLight_fw, © 2016 Hubert Denkmair)* | [`LICENSES/MIT.txt`](LICENSES/MIT.txt) |
 
 > ⚠️ **GitHub shows one licence badge per repository, and one badge cannot describe the
 > table above.** Take the `SPDX-License-Identifier` in the file you are actually using as
 > authoritative, not the badge.
+
+## Original compliance documents
+
+The original PDFs under [docs/compliance/](docs/compliance/) retain their
+printed conditions. They are not licensed under CC BY-SA or any hardware or
+software licence in this repository. Their `.license` sidecars use
+`LicenseRef-Original-Compliance-Terms` only to identify those existing terms;
+`SPDX-FileCopyrightText: NOASSERTION` does not invent a copyright owner.
+The explanatory index and README text remain documentation under CC BY-SA.
 
 ## Third-party material
 

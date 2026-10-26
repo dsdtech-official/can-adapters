@@ -30,6 +30,12 @@ isolated supply — nothing external needed. _More models are being added._
 > fitted at the factory: the SH-C31A speaks **gs_usb**, the SH-C31B appears as an ordinary
 > **serial port**. Either can be reflashed into the other → [SH-C31B](SH-C31B/)
 
+## Compliance documents
+
+CE (EMC) and RoHS laboratory attestations are available for selected models.
+See [Compliance documents](docs/compliance/) for the original PDFs,
+registration numbers, issue dates and model coverage.
+
 ## Software: start with diCAN
 
 **[diCAN](https://github.com/dsdtech-official/diCAN) is DSD TECH's official,
@@ -59,9 +65,10 @@ identifying your firmware — is in [`docs/`](docs/).
 
 ## Downloads
 
-**Binaries are not stored in this repository.** Firmware images, fabrication bundles and
-driver packages are attached to [Releases](../../releases), where each one is tied to a
-version you can cite in a support request.
+Firmware images, fabrication bundles and driver packages are attached to
+[Releases](../../releases), where each one is tied to a version you can cite
+in a support request. Original compliance PDFs are stored with the shared
+[compliance documents](docs/compliance/).
 
 ## Licensing
 
@@ -71,7 +78,8 @@ carries an `SPDX-License-Identifier`, and the full texts are in [`LICENSES/`](LI
 | Material | Licence |
 |---|---|
 | Hardware design files | CERN-OHL-S-2.0 |
-| Documentation, manuals, datasheets | CC-BY-SA-4.0 |
+| Documentation, manuals, datasheets (except original laboratory PDFs) | CC-BY-SA-4.0 |
+| Original laboratory attestations | [Original document terms](LICENSES/LicenseRef-Original-Compliance-Terms.txt); no additional open licence granted |
 | Example code | BSD-3-Clause |
 | Firmware images we publish | MIT (candleLight_fw, © 2016 Hubert Denkmair) |
 
