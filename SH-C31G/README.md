@@ -45,7 +45,8 @@ the guide shows how to check it.
 2. **Check the 120 Ω terminator.** Switch it **off** when the bus already has two, which a
    vehicle bus does → [`docs/termination.md`](../docs/termination.md)
 3. **Check your firmware.** We recommend the shared **v1.5** build for SH-C31G owners;
-   see the [firmware download and update steps](firmware/).
+   see the [firmware downloads](firmware/) and the illustrated
+   [Windows firmware upgrade guide](../docs/firmware-update-sh-c31a-sh-c31g.md).
 4. **The green LEDs stay dark until software opens the channel.** That is normal →
    [`docs/leds.md`](../docs/leds.md)
 5. **[Examples](examples/)** — read the bus, send a frame, send an FD frame

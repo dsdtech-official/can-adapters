@@ -43,6 +43,8 @@ the guide shows how to check it.
 3. **The green LEDs stay dark until software opens the channel.** That is normal →
    [`docs/leds.md`](../docs/leds.md)
 4. **[Examples](examples/)** — read the bus, send a frame, send an FD frame
+5. **[Windows firmware upgrade guide](../docs/firmware-update-sh-c31a-sh-c31g.md)** —
+   first-time update steps, BOOT positions, drivers and readback verification
 
 ## In this folder
 

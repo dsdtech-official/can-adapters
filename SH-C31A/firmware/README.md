@@ -182,6 +182,10 @@ is required: → [`docs/other-firmware.md`](../../docs/other-firmware.md)
 
 ## Flashing
 
+**First firmware update?** Follow the illustrated
+[Windows upgrade guide for SH-C31A and SH-C31G](../../docs/firmware-update-sh-c31a-sh-c31g.md)
+for BOOT positions, x64/ARM64 driver steps and the verified dfu-util write/readback path.
+
 Over USB DFU, to the STM32 system bootloader (`0483:DF11`). A USB cable and
 [`dfu-util`](https://dfu-util.sourceforge.net/) are all you need.
 

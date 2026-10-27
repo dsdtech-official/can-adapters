@@ -2,12 +2,13 @@
 <!-- SPDX-License-Identifier: CC-BY-SA-4.0 -->
 # Shared documentation
 
-Applies to every adapter in this repository. Model-specific material lives in the model's
-own folder.
+Shared guides for adapters in this repository. Check each guide's model coverage.
+Model-specific material lives in the model's own folder.
 
 | File | Answers |
 |---|---|
 | [`software.md`](software.md) | Get diCAN for Windows or macOS; match your adapter and firmware to the available features |
+| [`firmware-update-sh-c31a-sh-c31g.md`](firmware-update-sh-c31a-sh-c31g.md) | Illustrated Windows upgrade guide for SH-C31A / SH-C31G: BOOT switch, x64/ARM64 drivers, dfu-util and STM32CubeProgrammer pictures |
 | `identify-firmware.md` | Which firmware is on my adapter, and how do I change it? |
 | `termination.md` | When must the 120 Ω terminator be switched off? *(the #1 support question)* |
 | `leds.md` | What the three lights mean, and why the green ones are dark |
